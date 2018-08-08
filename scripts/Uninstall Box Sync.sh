@@ -2,13 +2,13 @@
 
 ###
 #
-#            Name:  Uninstall Box.sh
-#     Description:  Uninstalls Box Sync and Box Edit. Quits all running
-#                   processes, then removes all associated files.
+#            Name:  Uninstall Box Sync.sh
+#     Description:  Uninstalls Box Sync. Quits all running processes, then
+#                   removes all associated files.
 #                   Based on uninstaller-template (see script-templates).
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  3.1.1
+#   Last Modified:  2018-08-08
+#         Version:  3.1.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -41,14 +41,15 @@ loggedInUserUID=$("/usr/bin/id" -u "$loggedInUser")
 # names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app")
 processName=(
-  "Box Edit"
   "Box Sync"
 )
 # a list of full file paths to target for launchd unload and deletion
 resourceFiles=(
   "/Applications/Box Sync.app"
-  "$loggedInUserHome/Library/Logs/Box"
-  "$loggedInUserHome/Library/Application Support/Box"
+  "/Library/PrivilegedHelperTools/com.box.sync.bootstrapper"
+  "/Library/PrivilegedHelperTools/com.box.sync.iconhelper"
+  "$loggedInUserHome/Library/Logs/Box/Box Sync"
+  "$loggedInUserHome/Library/Application Support/Box/Box Sync"
   "$loggedInUserHome/Box Sync"
 )
 currentProcesses=$("/bin/ps" aux)
