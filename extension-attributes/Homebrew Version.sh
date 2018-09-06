@@ -3,10 +3,11 @@
 ###
 #
 #            Name:  Homebrew Version.sh
-#     Description:  Returns Homebrew version (if installed).
+#     Description:  Returns Homebrew version (if installed). Runs as currently
+#                   logged-in user to avoid running in root context.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  2.2.1
+#   Last Modified:  2018-09-06
+#         Version:  2.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,6 +33,7 @@
 
 
 
+loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 brewPath="/usr/local/bin/brew"
 
 
@@ -41,7 +43,7 @@ brewPath="/usr/local/bin/brew"
 
 
 if [[ -e "$brewPath" ]]; then
-    brewCheck=$("$brewPath" --version 2>&1)
+    brewCheck=$("/usr/bin/sudo" -u "$loggedInUser" "$brewPath" --version 2>&1)
 else
     brewCheck=""
 fi
