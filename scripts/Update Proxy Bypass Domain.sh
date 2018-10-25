@@ -6,8 +6,8 @@
 #     Description:  For each network interface with a proxy bypass domain entry
 #                   of "*.local", changes to the target domain entry.
 #         Created:  2017-05-23
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2018-10-25
+#         Version:  1.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -69,19 +69,18 @@ check_jamf_arguments
 
 
 # replaces all instances of "*.local" in each network interface with "$targetDomain"
-"/usr/bin/printf" '%s\n' "$networkInterfaces" | while "/usr/bin/read" -r interfaceName
-do
-  bypassDomainsCurrent=$("/usr/sbin/networksetup" -getproxybypassdomains "$interfaceName")
+while IFS= read -r interface; do
+  bypassDomainsCurrent=$("/usr/sbin/networksetup" -getproxybypassdomains "$interface")
   if [[ "$bypassDomainsCurrent" =~ "$targetDomain" ]]; then
-    "/bin/echo" "$interfaceName already inclues $targetDomain as proxy bypass domain, no action required."
+    "/bin/echo" "$interface already inclues $targetDomain as proxy bypass domain, no action required."
   elif [[ "$bypassDomainsCurrent" =~ "There aren't any bypass domains set on" ]]; then
-    "/bin/echo" "No proxy bypass domains defined for $interfaceName, no action required."
+    "/bin/echo" "No proxy bypass domains defined for $interface, no action required."
   else
     bypassDomainsUpdate=$("/bin/echo" "$bypassDomainsCurrent" | "/usr/bin/sed" "s/*.local/$targetDomain/" | "/usr/bin/tr" "\n" " ")
-    "/usr/sbin/networksetup" -setproxybypassdomains "$interfaceName" $bypassDomainsUpdate
-    "/bin/echo" "Updated proxy bypass domains for $interfaceName: $bypassDomainsUpdate"
+    "/usr/sbin/networksetup" -setproxybypassdomains "$interface" $bypassDomainsUpdate
+    "/bin/echo" "Updated proxy bypass domains for $interface: $bypassDomainsUpdate"
   fi
-done
+done <<< "$networkInterfaces"
 
 
 
