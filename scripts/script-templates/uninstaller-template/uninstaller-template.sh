@@ -9,9 +9,10 @@
 #                   all known paths for their scripts, quits all running target
 #                   processes, unloads all associated launchd tasks, disables
 #                   kernel extensions, then removes all associated files.
+#                   https://github.com/palantir/mac-jamf/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2018-11-28
+#         Version:  1.2.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -44,14 +45,14 @@ loggedInUserUID=$("/usr/bin/id" -u "$loggedInUser")
 # A list of full file paths to vendor-provided uninstall scripts.
 # Use "$loggedInUserHome" for the current user's home folder path.
 # If the vendor did not provide an uninstaller, comment this array out.
-vendorUninstallerPath=(
+vendorUninstallerPaths=(
   "/path/to/vendor_uninstaller_script1"
   "/path/to/vendor_uninstaller_script2"
 )
 # a list of application processes to target for quit and login item removal
 # names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app")
-processName=(
+processNames=(
   "Process Name 1"
   "Process Name 2"
 )
@@ -72,7 +73,7 @@ launchDaemonCheck=$("/bin/launchctl" list)
 
 # run vendor uninstaller if present
 run_vendor_uninstaller () {
-  for vendorUninstaller in "${vendorUninstallerPath[@]}"; do
+  for vendorUninstaller in "${vendorUninstallerPaths[@]}"; do
     if [[ -e "$vendorUninstaller" ]]; then
       # This syntax will differ depending on how the uninstall script functions.
       # In this example, the vendor uninstaller is a Bash script executed
@@ -91,7 +92,7 @@ run_vendor_uninstaller () {
 
 # quit target processes, remove associated login items
 quit_processes () {
-  for process in "${processName[@]}"; do
+  for process in "${processNames[@]}"; do
     if [[ $("/bin/echo" "$currentProcesses" | "/usr/bin/grep" "$process" | "/usr/bin/grep" -v "grep") = "" ]]; then
       "/bin/echo" "$process not running."
     else
@@ -142,12 +143,12 @@ delete_files () {
 
 
 # runs each function as needed (skips if arrays are empty)
-if [[ "$vendorUninstallerPath" != "" ]]; then
+if [[ "$vendorUninstallerPaths" != "" ]]; then
   run_vendor_uninstaller
 fi
 
 
-if [[ "$processName" != "" ]]; then
+if [[ "$processNames" != "" ]]; then
   quit_processes
 fi
 
