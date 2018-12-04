@@ -20,7 +20,7 @@ Given a list of vendor uninstaller commands and paths, process names, and/or fil
 2. Update the `vendorUninstallerPaths`, `processNames`, and `resourceFiles` arrays to list all respective file paths/process names as instructed in script comments.
 3. If you're running a vendor uninstaller as part of your uninstall workflow, modify the `run_vendor_uninstaller` function to properly execute the vendor-approved uninstall workflow (with any required arguments).
 
-If you don't need to perform any of the script functions (`run_vendor_uninstaller`, `quit_processes`, `delete_files`), just leave the corresponding array values blank and the script will skip those steps.
+If you don't need to perform any of the script functions (`run_vendor_uninstaller`, `quit_processes`, `delete_files`), just leave the corresponding array values blank (or comment the lines out) and the script will skip those steps.
 
 ## License
 This project is made available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
