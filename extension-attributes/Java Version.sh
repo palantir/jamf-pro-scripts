@@ -3,10 +3,10 @@
 ###
 #
 #            Name:  Java Version.sh
-#     Description:  Returns Java version (if installed).
+#     Description:  Returns Java version(s) (if installed).
 #         Created:  2017-06-15
-#   Last Modified:  2018-06-20
-#         Version:  1.3.1
+#   Last Modified:  2019-01-15
+#         Version:  2.0
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,6 +33,7 @@
 
 
 javaVMPath="/Library/Java/JavaVirtualMachines"
+javaVersionList=""
 
 
 
@@ -40,20 +41,24 @@ javaVMPath="/Library/Java/JavaVirtualMachines"
 
 
 
-# check for presence of Java installs and report version accordingly
+# check for presence of Java install(s) and report version(s) accordingly
 if [[ -d "$javaVMPath" ]]; then
-  javaVMList=$("/bin/ls" "$javaVMPath")
-  if [[ "$javaVMList" = "" ]]; then
-    javaVersion=""
-  else
-  	javaVersion=$("/usr/bin/java" -version 2>&1 | "/usr/bin/awk" -F\" '/java version/ {print $2}')
-  fi
-else
-  javaVersion=""
+  javaVMList=$("/bin/ls" -1 "$javaVMPath")
+  while read javaInstall; do
+    javaBinPath="$javaVMPath/$javaInstall/Contents/Home/bin/java"
+    if [[ -e "$javaBinPath" ]]; then
+      javaVersion=$("$javaBinPath" -version 2>&1 | "/usr/bin/awk" '/version/ {print}')
+      if [[ "$javaVersionList" = "" ]]; then
+        javaVersionList="$javaVersion"
+      else
+        javaVersionList="$javaVersionList\n$javaVersion"
+      fi
+    fi
+  done <<< "$javaVMList"
 fi
 
 
-"/bin/echo" "<result>$javaVersion</result>"
+"/usr/bin/printf" "<result>$javaVersionList</result>"
 
 
 
