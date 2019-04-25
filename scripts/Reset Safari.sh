@@ -6,8 +6,8 @@
 #     Description:  Resets all Safari user data to defaults for the currently
 #                   logged-in user.
 #         Created:  2016-08-18
-#   Last Modified:  2018-06-20
-#         Version:  2.1.1
+#   Last Modified:  2019-04-25
+#         Version:  2.1.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -46,6 +46,7 @@ preferencesToReset=(
   "$userLibrary/Preferences/com.apple.Safari.LSSharedFileList.plist"
   "$userLibrary/Preferences/com.apple.Safari.RSS.plist"
   "$userLibrary/Preferences/com.apple.Safari.plist"
+  "$userLibrary/Preferences/com.apple.Safari.plistls"
   "$userLibrary/Preferences/com.apple.WebFoundation.plist"
   "$userLibrary/Preferences/com.apple.WebKit.PluginHost.plist"
   "$userLibrary/Preferences/com.apple.WebKit.PluginProcess.plist"
