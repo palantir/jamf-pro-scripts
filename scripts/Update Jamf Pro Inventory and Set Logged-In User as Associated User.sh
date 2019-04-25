@@ -2,12 +2,12 @@
 
 ###
 #
-#            Name:  Update Jamf Inventory and Set Logged-In User as Associated User.sh
-#     Description:  Update Jamf inventory, assigning the computer record to the
-#                   currently logged-in user.
+#            Name:  Update Jamf Pro Inventory and Set Logged-In User as Associated User.sh
+#     Description:  Update Jamf Pro inventory, assigning the computer record to
+#                   the currently logged-in user.
 #         Created:  2016-06-08
-#   Last Modified:  2018-06-20
-#         Version:  1.1.2
+#   Last Modified:  2019-04-25
+#         Version:  1.1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -41,7 +41,7 @@ loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 
 
 
-# update Jamf inventory, assign to currently logged-in user
+# update Jamf Pro inventory, assign to currently logged-in user
 "/usr/local/bin/jamf" recon -endUsername "$loggedInUser"
 
 
