@@ -43,9 +43,9 @@ brewPath="/usr/local/bin/brew"
 
 
 if [[ -e "$brewPath" ]]; then
-    brewCheck=$("/usr/bin/sudo" -u "$loggedInUser" "$brewPath" --version 2>&1)
+  brewCheck=$("/usr/bin/sudo" -u "$loggedInUser" "$brewPath" --version 2>&1)
 else
-    brewCheck=""
+  brewCheck=""
 fi
 
 

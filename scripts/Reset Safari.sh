@@ -62,12 +62,12 @@ preferencesToReset=(
 
 
 # delete Safari preference files
-  "/bin/echo" "Deleting Safari preference files to reset to system default..."
-  for safariPref in ${preferencesToReset[@]}; do
-    if [[ -e "$safariPref" ]]; then
-      "/bin/rm" -rv "$safariPref"
-    fi
-  done
+"/bin/echo" "Deleting Safari preference files to reset to system default..."
+for safariPref in ${preferencesToReset[@]}; do
+  if [[ -e "$safariPref" ]]; then
+    "/bin/rm" -rv "$safariPref"
+  fi
+done
 
 
 

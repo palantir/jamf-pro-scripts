@@ -84,9 +84,9 @@ fi
 
 # adds target user or group to com.apple.access_ssh
 "/usr/sbin/dseditgroup" -o edit \
-    -a "$targetID" \
-    -t "$targetType" \
-    "$sshGroup"
+  -a "$targetID" \
+  -t "$targetType" \
+  "$sshGroup"
 
 
 "/bin/echo" "Added $targetID to $sshGroup."

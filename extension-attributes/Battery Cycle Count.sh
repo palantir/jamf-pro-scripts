@@ -42,9 +42,9 @@ powerReport=$("/usr/sbin/system_profiler" SPPowerDataType)
 
 
 if [[ "$powerReport" = *"Battery Information"* ]]; then
-	cycleCount=$("/bin/echo" "$powerReport" | "/usr/bin/awk" '/Cycle Count/ {print $3}' | "/usr/bin/bc")
+  cycleCount=$("/bin/echo" "$powerReport" | "/usr/bin/awk" '/Cycle Count/ {print $3}' | "/usr/bin/bc")
 else
-	cycleCount=0
+  cycleCount=0
 fi
 
 

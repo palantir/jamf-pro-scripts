@@ -40,9 +40,9 @@ silverlightPlugin="/Library/Internet Plug-Ins/Silverlight.plugin"
 
 
 if [[ -e "$silverlightPlugin" ]]; then
-	silverlightVersion=$("/usr/bin/defaults" read "$silverlightPlugin/Contents/Info" "SilverlightVersion")
+  silverlightVersion=$("/usr/bin/defaults" read "$silverlightPlugin/Contents/Info" "SilverlightVersion")
 else
-	silverlightVersion=""
+  silverlightVersion=""
 fi
 
 

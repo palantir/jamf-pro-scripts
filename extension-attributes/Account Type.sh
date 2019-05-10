@@ -42,9 +42,9 @@ loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 
 
 if [[ $("/usr/bin/id" -u "$loggedInUser") -gt 999999999 ]]; then
-    result="Domain User"
+  result="Domain User"
 else
-    result="Local User"
+  result="Local User"
 fi
 
 "/bin/echo" "<result>$result</result>"

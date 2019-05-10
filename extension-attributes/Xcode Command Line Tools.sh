@@ -42,11 +42,11 @@ xcodeCheck=$("/usr/bin/xcode-select" -p 2>&1)
 
 
 if [[ "$xcodeCheck" = "/Applications/Xcode.app/Contents/Developer" ]]; then
-	xcodeCLI="Bundled with Xcode"
+  xcodeCLI="Bundled with Xcode"
 elif [[ "$xcodeCheck" = "/Library/Developer/CommandLineTools" ]]; then
-    xcodeCLI="Standalone"
+  xcodeCLI="Standalone"
 else
-    xcodeCLI=""
+  xcodeCLI=""
 fi
 
 

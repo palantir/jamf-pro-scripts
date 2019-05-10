@@ -42,7 +42,7 @@ xcodeCheck=$("/usr/bin/xcode-select" -p 2>&1)
 
 # exit if Xcode Command Line Tools are already installed
 if [[ "$xcodeCheck" = "/Applications/Xcode.app/Contents/Developer" || "$xcodeCheck" = "/Library/Developer/CommandLineTools" ]]; then
-	"/bin/echo" "Xcode Command Line Tools already installed, no action required."
+  "/bin/echo" "Xcode Command Line Tools already installed, no action required."
   exit 0
 fi
 

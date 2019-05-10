@@ -85,9 +85,9 @@ fi
 
 # removes target user or group from com.apple.access_ssh
 "/usr/sbin/dseditgroup" -o edit \
-    -d "$targetID" \
-    -t "$targetType" \
-    "$sshGroup"
+  -d "$targetID" \
+  -t "$targetType" \
+  "$sshGroup"
 
 
 "/bin/echo" "Removed $targetID from $sshGroup."

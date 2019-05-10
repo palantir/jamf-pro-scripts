@@ -83,7 +83,7 @@ public_ssh_key_check () {
 
 # remove existing SSH keys if present
 if [[ -e "$targetUserSSHAuthorizedKeysPath" ]]; then
-	"/bin/rm" "$targetUserSSHAuthorizedKeysPath"
+  "/bin/rm" "$targetUserSSHAuthorizedKeysPath"
 fi
 
 

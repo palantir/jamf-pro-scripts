@@ -41,9 +41,9 @@ gitPath="/usr/local/bin/git"
 
 
 if [[ -f "$gitPath" ]]; then
-    gitVersion=$("$gitPath" --version | "/usr/bin/awk" '{print $NF}')
+  gitVersion=$("$gitPath" --version | "/usr/bin/awk" '{print $NF}')
 else
-    gitVersion=""
+  gitVersion=""
 fi
 
 
