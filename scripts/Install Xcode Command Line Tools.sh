@@ -5,8 +5,8 @@
 #            Name:  Install Xcode Command Line Tools.sh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2019-05-09
-#         Version:  5.2.2
+#   Last Modified:  2019-06-11
+#         Version:  5.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -28,11 +28,19 @@
 
 
 
-########## variable-ing ##########
+########## function-ing ##########
 
 
 
-xcodeCheck=$("/usr/bin/xcode-select" -p 2>&1)
+# Check current state of Xcode Command Line Tools installation.
+function xcodeCheck {
+  xcodeSelectCheck=$("/usr/bin/xcode-select" -p 2>&1)
+  if [[ "$xcodeSelectCheck" = "/Applications/Xcode.app/Contents/Developer" || "$xcodeSelectCheck" = "/Library/Developer/CommandLineTools" ]]; then
+    xcodeCLI="installed"
+  else
+    xcodeCLI="missing"
+  fi
+}
 
 
 
@@ -40,14 +48,15 @@ xcodeCheck=$("/usr/bin/xcode-select" -p 2>&1)
 
 
 
-# exit if Xcode Command Line Tools are already installed
-if [[ "$xcodeCheck" = "/Applications/Xcode.app/Contents/Developer" || "$xcodeCheck" = "/Library/Developer/CommandLineTools" ]]; then
+# Exit if Xcode Command Line Tools are already installed.
+xcodeCheck
+if [[ "$xcodeCLI" = "installed" ]]; then
   "/bin/echo" "Xcode Command Line Tools already installed, no action required."
   exit 0
 fi
 
 
-# install Xcode Command Line Tools via Software Update
+# Install Xcode Command Line Tools via softwareupdate.
 "/usr/bin/touch" "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
 xcodeCommandLineTools=$("/usr/sbin/softwareupdate" --list 2>&1 | \
   "/usr/bin/awk" -F"[*] " '/\* Command Line Tools/ {print $NF}')
@@ -55,6 +64,16 @@ while read -r update; do
   "/usr/sbin/softwareupdate" --install "$update"
   "/bin/echo" "✅ Installed $update."
 done <<< "$xcodeCommandLineTools"
+
+
+# Verify successful installation.
+xcodeCheck
+if [[ "$xcodeCLI" = "missing" ]]; then
+  "/bin/echo" "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
+  exit 1
+else
+  "/bin/echo" "✅ Installed Xcode Command Line Tools."
+fi
 
 
 exit 0
