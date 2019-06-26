@@ -9,10 +9,10 @@
 #                   all known paths for their scripts, quits all running target
 #                   processes, unloads all associated launchd tasks, disables
 #                   kernel extensions, then removes all associated files.
-#                   https://github.com/palantir/mac-jamf/tree/master/scripts/script-templates/uninstaller-template
+#                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2018-11-28
-#         Version:  1.2.2
+#   Last Modified:  2019-06-26
+#         Version:  1.2.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.

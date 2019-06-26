@@ -1,4 +1,4 @@
-# mac-jamf
+# jamf-pro-scripts
 
 ## About
 This is a collection of extension attributes and scripts intended for managing Mac workstations via Jamf Pro.
