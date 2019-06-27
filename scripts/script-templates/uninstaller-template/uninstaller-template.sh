@@ -1,18 +1,19 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 
 ###
 #
 #            Name:  uninstaller-template.sh
 #     Description:  A template script to assist with the uninstallation of
 #                   macOS products where the vendor has missing or incomplete
-#                   removal solutions. Attempts vendor uninstall by targeting
-#                   all known paths for their scripts, quits all running target
+#                   removal solutions. Attempts vendor uninstall by running all
+#                   provided uninstallation commands, quits all running target
 #                   processes, unloads all associated launchd tasks, disables
 #                   kernel extensions, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2019-06-26
-#         Version:  1.2.3
+#   Last Modified:  2019-06-27
+#         Version:  1.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -38,32 +39,45 @@
 
 
 
+# Environment Variables (leave as-is)
 scriptName=$("/usr/bin/basename" "$0")
 loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
+# For any file paths used later in this script, use "$loggedInUserHome" for the
+# current user's home folder path.
+# Don't just assume the home folder is at /Users/$loggedInUser.
 loggedInUserHome=$("/usr/bin/dscl" . -read "/Users/$loggedInUser" NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
 loggedInUserUID=$("/usr/bin/id" -u "$loggedInUser")
-# A list of full file paths to vendor-provided uninstall scripts.
-# Use "$loggedInUserHome" for the current user's home folder path.
+currentProcesses=$("/bin/ps" aux)
+launchAgentCheck=$("/bin/launchctl" asuser "$loggedInUserUID" "/bin/launchctl" list)
+launchDaemonCheck=$("/bin/launchctl" list)
+
+
+# Uninstall Script Variables (update or comment out arrays as needed)
+# A list of full commands to execute vendor-provided uninstallation workflows.
+# Syntax will differ depending on how the uninstall script functions. In the
+# below examples, the vendor uninstallers are shell scripts executed without
+# arguments, but some vendors may use their own command-line tools, custom
+# flags, or other workflows to accomplish this task (that's why this script
+# exists!), so make any necessary changes to the below commands.
 # If the vendor did not provide an uninstaller, comment this array out.
-vendorUninstallerPaths=(
-  "/path/to/vendor_uninstaller_script1"
-  "/path/to/vendor_uninstaller_script2"
+vendorUninstallerCommands=(
+  "sh /path/to/vendor_uninstaller_command1.sh"
+  "sh /path/to/vendor_uninstaller_command2.sh"
 )
-# a list of application processes to target for quit and login item removal
-# names should match what is displayed for the process in Activity Monitor
-# (e.g. "Chess", not "Chess.app")
+# A list of application processes to target for quit and login item removal.
+# Names should match what is displayed for the process in Activity Monitor
+# (e.g. "Chess", not "Chess.app").
+# If no processes need to be quit, comment this array out.
 processNames=(
   "Process Name 1"
   "Process Name 2"
 )
-# a list of full file paths to target for launchd unload and deletion
+# A list of full file paths to target for launchd unload and deletion.
+# If no files need to be manually deleted, comment this array out.
 resourceFiles=(
   "/path/to/file1"
   "/path/to/file2"
 )
-currentProcesses=$("/bin/ps" aux)
-launchAgentCheck=$("/bin/launchctl" asuser "$loggedInUserUID" "/bin/launchctl" list)
-launchDaemonCheck=$("/bin/launchctl" list)
 
 
 
@@ -71,27 +85,17 @@ launchDaemonCheck=$("/bin/launchctl" list)
 
 
 
-# run vendor uninstaller if present
-run_vendor_uninstaller () {
-  for vendorUninstaller in "${vendorUninstallerPaths[@]}"; do
-    if [[ -e "$vendorUninstaller" ]]; then
-      # This syntax will differ depending on how the uninstall script functions.
-      # In this example, the vendor uninstaller is a Bash script executed
-      # without arguments, but some vendors may use their own command-line
-      # tools, custom flags, or other workflows to accomplish this task (that's
-      # why this script exists!), so make any necessary changes to the below
-      # command.
-      "/bin/bash" "$vendorUninstaller"
-      "/bin/echo" "Ran vendor uninstaller at $vendorUninstaller."
-    else
-      "/bin/echo" "No uninstaller found at $vendorUninstaller."
-    fi
+# Run vendor uninstaller commands.
+# This will fail if a command references nonexistent scripts or binaries.
+function run_vendor_uninstallers {
+  for vendorUninstaller in "${vendorUninstallerCommands[@]}"; do
+    $vendorUninstaller
   done
 }
 
 
-# quit target processes, remove associated login items
-quit_processes () {
+# Quit target processes and remove associated login items.
+function quit_processes {
   for process in "${processNames[@]}"; do
     if [[ $("/bin/echo" "$currentProcesses" | "/usr/bin/grep" "$process" | "/usr/bin/grep" -v "grep") = "" ]]; then
       "/bin/echo" "$process not running."
@@ -104,8 +108,8 @@ quit_processes () {
 }
 
 
-# remove all remaining resource files
-delete_files () {
+# Remove all remaining resource files.
+function delete_files {
   "/bin/echo" "Removing files..."
   for targetFile in "${resourceFiles[@]}"; do
     # if file exists
@@ -114,10 +118,10 @@ delete_files () {
       if [[ "$targetFile" == *".plist" ]]; then
         # if plist is loaded as LaunchAgent or LaunchDaemon, unload it
         justThePlist=$("/usr/bin/basename" "$targetFile" | "/usr/bin/awk" -F.plist '{print $1}')
-        if [[ "$launchAgentCheck" =~ "$justThePlist" ]]; then
+        if [[ "$launchAgentCheck" =~ $justThePlist ]]; then
           "/bin/launchctl" asuser "$loggedInUserUID" "/bin/launchctl" unload "$targetFile"
           "/bin/echo" "Unloaded LaunchAgent at $targetFile."
-        elif [[ "$launchDaemonCheck" =~ "$justThePlist" ]]; then
+        elif [[ "$launchDaemonCheck" =~ $justThePlist ]]; then
           "/bin/launchctl" unload "$targetFile"
           "/bin/echo" "Unloaded LaunchDaemon at $targetFile."
         fi
@@ -142,18 +146,19 @@ delete_files () {
 
 
 
-# runs each function as needed (skips if arrays are empty)
-if [[ "$vendorUninstallerPaths" != "" ]]; then
-  run_vendor_uninstaller
+# Each function will only execute if the respective source array is not empty
+# or undefined.
+if [[ "${vendorUninstallerCommands[*]}" != "" ]]; then
+  run_vendor_uninstallers
 fi
 
 
-if [[ "$processNames" != "" ]]; then
+if [[ "${processNames[*]}" != "" ]]; then
   quit_processes
 fi
 
 
-if [[ "$resourceFiles" != "" ]]; then
+if [[ "${resourceFiles[*]}" != "" ]]; then
   delete_files
 fi
 
