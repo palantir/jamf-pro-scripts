@@ -6,10 +6,11 @@
 #            Name:  uninstaller-template.sh
 #     Description:  A template script to assist with the uninstallation of
 #                   macOS products where the vendor has missing or incomplete
-#                   removal solutions. Attempts vendor uninstall by running all
-#                   provided uninstallation commands, quits all running target
-#                   processes, unloads all associated launchd tasks, disables
-#                   kernel extensions, then removes all associated files.
+#                   removal solutions.
+#                   Attempts vendor uninstall by running all provided
+#                   uninstallation commands, quits all running target processes,
+#                   unloads all associated launchd tasks, disables kernel
+#                   extensions, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
 #   Last Modified:  2019-06-27
@@ -110,7 +111,6 @@ function quit_processes {
 
 # Remove all remaining resource files.
 function delete_files {
-  "/bin/echo" "Removing files..."
   for targetFile in "${resourceFiles[@]}"; do
     # if file exists
     if [[ -e "$targetFile" ]]; then
@@ -149,16 +149,19 @@ function delete_files {
 # Each function will only execute if the respective source array is not empty
 # or undefined.
 if [[ "${vendorUninstallerCommands[*]}" != "" ]]; then
+  "/bin/echo" "Running vendor uninstallers..."
   run_vendor_uninstallers
 fi
 
 
 if [[ "${processNames[*]}" != "" ]]; then
+  "/bin/echo" "Quitting processes (if running)..."
   quit_processes
 fi
 
 
 if [[ "${resourceFiles[*]}" != "" ]]; then
+  "/bin/echo" "Removing files (if present)..."
   delete_files
 fi
 
