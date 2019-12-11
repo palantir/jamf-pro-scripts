@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/zsh
 
 ###
 #
 #            Name:  Uptime.sh
-#     Description:  Returns the system uptime.
+#     Description:  Returns the system uptime in seconds.
 #         Created:  2017-01-04
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2019-12-11
+#         Version:  2.0
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -31,7 +31,8 @@
 
 
 
-uptime=$("/usr/sbin/sysctl" -n kern.boottime | "/usr/bin/awk" -F'[ ,]' '{print $4}')
+currentDate=$(/bin/date +%s)
+bootDate=$(/usr/sbin/sysctl -n kern.boottime | /usr/bin/awk -F'[ ,]' '{print $4}')
 
 
 
@@ -39,7 +40,13 @@ uptime=$("/usr/sbin/sysctl" -n kern.boottime | "/usr/bin/awk" -F'[ ,]' '{print $
 
 
 
-"/bin/echo" "<result>$uptime</result>"
+# Get current uptime by subtracting last boot date from current date in seconds.
+uptime=$(( $currentDate - $bootDate ))
+
+
+
+# Report results.
+/bin/echo "<result>$uptime</result>"
 
 
 
