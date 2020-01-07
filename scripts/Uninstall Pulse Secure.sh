@@ -12,8 +12,8 @@
 #                   Based on uninstaller-template:
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2019-06-27
-#         Version:  1.3.0r1
+#   Last Modified:  2020-01-07
+#         Version:  1.3.1pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -39,20 +39,20 @@
 
 
 
-# Environment Variables (leave as-is)
-scriptName=$("/usr/bin/basename" "$0")
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
+# ENVIRONMENT VARIABLES (leave as-is):
+scriptName=$(/usr/bin/basename "$0")
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the
 # current user's home folder path.
 # Don't just assume the home folder is at /Users/$loggedInUser.
-loggedInUserHome=$("/usr/bin/dscl" . -read "/Users/$loggedInUser" NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
-loggedInUserUID=$("/usr/bin/id" -u "$loggedInUser")
-currentProcesses=$("/bin/ps" aux)
-launchAgentCheck=$("/bin/launchctl" asuser "$loggedInUserUID" "/bin/launchctl" list)
-launchDaemonCheck=$("/bin/launchctl" list)
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
+currentProcesses=$(/bin/ps aux)
+launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
+launchDaemonCheck=$(/bin/launchctl list)
 
 
-# Uninstall Script Variables (update or comment out arrays as needed)
+# UNINSTALLER COMMANDS (update or comment out arrays as needed):
 # A list of full commands to execute vendor-provided uninstallation workflows.
 # Syntax will differ depending on how the uninstall script functions. In the
 # below examples, the vendor uninstallers are shell scripts executed without
@@ -64,6 +64,9 @@ vendorUninstallerCommands=(
   "sh /Library/Application\ Support/Juniper\ Networks/Junos\ Pulse/Uninstall.app/Contents/Resources/uninstall.sh"
   "sh /Library/Application\ Support/Pulse\ Secure/Pulse/Uninstall.app/Contents/Resources/uninstall.sh"
 )
+
+
+# PROCESSES:
 # A list of application processes to target for quit and login item removal.
 # Names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app").
@@ -72,6 +75,9 @@ processNames=(
   "Junos Pulse"
   "Pulse Secure"
 )
+
+
+# FILE PATHS:
 # A list of full file paths to target for launchd unload and deletion.
 # If no files need to be manually deleted, comment this array out.
 resourceFiles=(
@@ -102,12 +108,12 @@ function run_vendor_uninstallers {
 # Quit target processes and remove associated login items.
 function quit_processes {
   for process in "${processNames[@]}"; do
-    if [[ $("/bin/echo" "$currentProcesses" | "/usr/bin/grep" "$process" | "/usr/bin/grep" -v "grep") = "" ]]; then
-      "/bin/echo" "$process not running."
+    if /bin/echo "$currentProcesses" | ! /usr/bin/grep -q "$process"; then
+      /bin/echo "$process not running."
     else
-      "/bin/launchctl" asuser "$loggedInUserUID" "/usr/bin/osascript" -e "tell application \"$process\" to quit"
-      "/usr/bin/osascript" -e "tell application \"System Events\" to delete every login item whose name is \"$process\""
-      "/bin/echo" "Quit $process, removed from login items if present."
+      /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"$process\" to quit"
+      /usr/bin/osascript -e "tell application \"System Events\" to delete every login item whose name is \"$process\""
+      /bin/echo "Quit $process, removed from login items if present."
     fi
   done
 }
@@ -121,24 +127,24 @@ function delete_files {
       # if file is a plist
       if [[ "$targetFile" == *".plist" ]]; then
         # if plist is loaded as LaunchAgent or LaunchDaemon, unload it
-        justThePlist=$("/usr/bin/basename" "$targetFile" | "/usr/bin/awk" -F.plist '{print $1}')
+        justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
         if [[ "$launchAgentCheck" =~ $justThePlist ]]; then
-          "/bin/launchctl" asuser "$loggedInUserUID" "/bin/launchctl" unload "$targetFile"
-          "/bin/echo" "Unloaded LaunchAgent at $targetFile."
+          /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
+          /bin/echo "Unloaded LaunchAgent at $targetFile."
         elif [[ "$launchDaemonCheck" =~ $justThePlist ]]; then
-          "/bin/launchctl" unload "$targetFile"
-          "/bin/echo" "Unloaded LaunchDaemon at $targetFile."
+          /bin/launchctl unload "$targetFile"
+          /bin/echo "Unloaded LaunchDaemon at $targetFile."
         fi
       fi
       # disable kexts, delete all other file types
       if [[ "$targetFile" == *".kext" ]]; then
         appKextKillPath="/tmp/$scriptName"
-        "/bin/mkdir" -p "$appKextKillPath"
-        "/bin/mv" "$targetFile" "$appKextKillPath"
-        "/bin/echo" "Moved $targetFile to $appKextKillPath. File will be deleted on subsequent restart."
+        /bin/mkdir -p "$appKextKillPath"
+        /bin/mv "$targetFile" "$appKextKillPath"
+        /bin/echo "Moved $targetFile to $appKextKillPath. File will be deleted on subsequent restart."
       else
-        "/bin/rm" -rf "$targetFile"
-        "/bin/echo" "Removed $targetFile."
+        /bin/rm -rf "$targetFile"
+        /bin/echo "Removed $targetFile."
       fi
     fi
   done
@@ -152,20 +158,20 @@ function delete_files {
 
 # Each function will only execute if the respective source array is not empty
 # or undefined.
-if [[ "${vendorUninstallerCommands[*]}" != "" ]]; then
-  "/bin/echo" "Running vendor uninstallers..."
+if [[ -n "${vendorUninstallerCommands[*]}" ]]; then
+  /bin/echo "Running vendor uninstallers..."
   run_vendor_uninstallers
 fi
 
 
-if [[ "${processNames[*]}" != "" ]]; then
-  "/bin/echo" "Quitting processes (if running)..."
+if [[ -n "${processNames[*]}" ]]; then
+  /bin/echo "Quitting processes (if running)..."
   quit_processes
 fi
 
 
-if [[ "${resourceFiles[*]}" != "" ]]; then
-  "/bin/echo" "Removing files (if present)..."
+if [[ -n "${resourceFiles[*]}" ]]; then
+  /bin/echo "Removing files (if present)..."
   delete_files
 fi
 
