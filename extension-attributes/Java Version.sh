@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Java Version.sh
 #     Description:  Returns Java version(s) (if installed).
 #         Created:  2017-06-15
-#   Last Modified:  2019-01-15
-#         Version:  2.0
+#   Last Modified:  2020-01-07
+#         Version:  2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,7 +33,7 @@
 
 
 javaVMPath="/Library/Java/JavaVirtualMachines"
-javaVersionList=""
+javaVersionListTempFile="/tmp/javaVersionList.txt"
 
 
 
@@ -41,24 +41,33 @@ javaVersionList=""
 
 
 
-# check for presence of Java install(s) and report version(s) accordingly
-if [[ -d "$javaVMPath" ]]; then
-  javaVMList=$("/bin/ls" -1 "$javaVMPath")
-  while read javaInstall; do
-    javaBinPath="$javaVMPath/$javaInstall/Contents/Home/bin/java"
-    if [[ -e "$javaBinPath" ]]; then
-      javaVersion=$("$javaBinPath" -version 2>&1 | "/usr/bin/awk" '/version/ {print}')
-      if [[ "$javaVersionList" = "" ]]; then
-        javaVersionList="$javaVersion"
-      else
-        javaVersionList="$javaVersionList\n$javaVersion"
-      fi
+# Initilaize temp file.
+if [ -e "$javaVersionListTempFile" ]; then
+  rm "$javaVersionListTempFile"
+fi
+touch "$javaVersionListTempFile"
+
+
+
+# Check for presence of Java install(s) and get version(s).
+if [ -d "$javaVMPath" ]; then
+  /usr/bin/find "$javaVMPath" -maxdepth 1 -name "*.jdk" | /usr/bin/sort | while read -r javaInstall; do
+    javaBinPath="$javaInstall/Contents/Home/bin/java"
+    if [ -e "$javaBinPath" ]; then
+      javaVersion=$("$javaBinPath" -version 2>&1 | /usr/bin/awk '/version/ {print}')
+      /bin/echo "$javaVersion" >> "$javaVersionListTempFile"
+#      if [ -z "$javaVersionList" ]; then
+#        javaVersionList="$javaVersion"
+#      else
+#        javaVersionList="$javaVersionList\n$javaVersion"
+#      fi
     fi
-  done <<< "$javaVMList"
+  done
 fi
 
 
-"/usr/bin/printf" "<result>$javaVersionList</result>"
+# Report result.
+/bin/echo "<result>$(/bin/cat $javaVersionListTempFile)</result>"
 
 
 
