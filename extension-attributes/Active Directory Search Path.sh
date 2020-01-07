@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Returns Active Directory search path (if computer is bound
 #                   to domain).
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -29,26 +29,20 @@
 
 
 
-########## variable-ing ##########
-
-
-
-adCheck=$("/usr/sbin/dsconfigad" -show)
-
-
-
 ########## main process ##########
 
 
 
-if [[ "$adCheck" = "" ]]; then
+# Check dsconfigad for domain bind info.
+if [ -z "$(/usr/sbin/dsconfigad -show)" ]; then
   adSearchPath=""
 else
-  adSearchPath=$("/usr/bin/dscl" localhost -read /Search CSPSearchPath | "/usr/bin/grep" "Active Directory")
+  adSearchPath=$(/usr/bin/dscl localhost -read /Search CSPSearchPath | /usr/bin/grep "Active Directory" | /usr/bin/sed 's/^ *//')
 fi
 
 
-"/bin/echo" "<result>$adSearchPath</result>"
+# Report result.
+/bin/echo "<result>$adSearchPath</result>"
 
 
 

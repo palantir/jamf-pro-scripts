@@ -5,8 +5,8 @@
 #            Name:  Logged-In User.sh
 #     Description:  Returns currently logged-in user.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.1.2
+#   Last Modified:  2020-01-07
+#         Version:  1.1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 
 
 
@@ -40,7 +40,8 @@ loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 
 
 
-"/bin/echo" "<result>$loggedInUser</result>"
+# Report logged-in user.
+/bin/echo "<result>$loggedInUser</result>"
 
 
 

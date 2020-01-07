@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Returns whether a "Camtasia Registration Key Unified
 #                   License" file is present in "/Users/Shared/TechSmith/Camtasia/".
 #         Created:  2018-10-09
-#   Last Modified:  2019-05-09
-#         Version:  1.0.1
+#   Last Modified:  2020-01-07
+#         Version:  1.1
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -29,24 +29,20 @@
 
 
 
-########## variable-ing ##########
-
-
-
-licensePath="/Users/Shared/TechSmith/Camtasia/Camtasia Registration Key Unified License"
-
-
-
 ########## main process ##########
 
 
 
-if [[ -e "$licensePath" ]]; then
+# Check for presence of target license file.
+if [ -e "/Users/Shared/TechSmith/Camtasia/Camtasia Registration Key Unified License" ]; then
   licenseStatus="Licensed"
+else
+  licenseStatus=""
 fi
 
 
-"/bin/echo" "<result>$licenseStatus</result>"
+# Report result.
+/bin/echo "<result>$licenseStatus</result>"
 
 
 

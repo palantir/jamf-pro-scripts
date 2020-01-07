@@ -5,8 +5,8 @@
 #            Name:  Logged-In User UID.sh
 #     Description:  Gets UID of currently logged-in user.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.1.3
+#   Last Modified:  2020-01-07
+#         Version:  1.1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,8 +32,8 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUID=$("/usr/bin/id" -u "$loggedInUser")
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUID=$(/usr/bin/id -u "$loggedInUser")
 
 
 
@@ -41,7 +41,8 @@ loggedInUID=$("/usr/bin/id" -u "$loggedInUser")
 
 
 
-"/bin/echo" "<result>$loggedInUID</result>"
+# Report UID of logged-in user.
+/bin/echo "<result>$loggedInUID</result>"
 
 
 

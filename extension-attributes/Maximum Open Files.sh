@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Maximum Open Files.sh
 #     Description:  Returns current value of $(/usr/bin/ulimit -n).
 #         Created:  2017-11-03
-#   Last Modified:  2018-06-20
-#         Version:  1.0.1
+#   Last Modified:  2020-01-07
+#         Version:  1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -28,19 +28,12 @@
 
 
 
-########## variable-ing ##########
-
-
-
-maxOpenFiles=$("/usr/bin/ulimit" -n)
-
-
-
 ########## main process ##########
 
 
 
-"/bin/echo" "<result>$maxOpenFiles</result>"
+# Report maximum open files.
+/bin/echo "<result>$(/usr/bin/ulimit -n)</result>"
 
 
 

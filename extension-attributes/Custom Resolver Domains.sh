@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Custom Resolver Domains.sh
 #     Description:  Returns list of custom domains configured in /etc/resolver/.
 #         Created:  2017-10-09
-#   Last Modified:  2018-06-20
-#         Version:  1.1.1
+#   Last Modified:  2020-01-07
+#         Version:  1.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -40,14 +40,16 @@ macosResolverPath="/etc/resolver"
 
 
 
-if [[ -d "$macosResolverPath" ]]; then
-  resolverDomains=$("/bin/ls" -1 "$macosResolverPath")
+# List custom domain entries.
+if [ -d "$macosResolverPath" ]; then
+  resolverDomains=$(/bin/ls -1 "$macosResolverPath")
 else
   resolverDomains=""
 fi
 
 
-"/bin/echo" "<result>$resolverDomains</result>"
+# Report result.
+/bin/echo "<result>$resolverDomains</result>"
 
 
 

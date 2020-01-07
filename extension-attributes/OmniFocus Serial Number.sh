@@ -5,8 +5,8 @@
 #            Name:  OmniFocus Serial Number.sh
 #     Description:  Returns OmniFocus serial numbers (if license file exists).
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -40,19 +40,21 @@ ominLicensePath="/Library/Application Support/Omni Group/Software Licenses"
 
 
 
-if [[ -d "$ominLicensePath" ]]; then
-  omniLicense=$("/bin/cat" $ominLicensePath/OmniFocus*.omnilicense | \
-    "/usr/bin/grep" -A1 Key | \
-    "/usr/bin/grep" string | \
-    "/usr/bin/sed" 's/<string>//g' | \
-    "/usr/bin/sed" 's/<\/string>//g' | \
-    "/usr/bin/awk" '{print $1}')
+# Check for presence of target license file and get serial number.
+if [ -d "$ominLicensePath" ]; then
+  omniLicense=$(/bin/cat "$ominLicensePath"/OmniFocus*.omnilicense | \
+    /usr/bin/grep -A1 Key | \
+    /usr/bin/grep string | \
+    /usr/bin/sed 's/<string>//g' | \
+    /usr/bin/sed 's/<\/string>//g' | \
+    /usr/bin/awk '{print $1}')
 else
   omniLicense=""
 fi
 
 
-"/bin/echo" "<result>$omniLicense</result>"
+# Report result.
+/bin/echo "<result>$omniLicense</result>"
 
 
 

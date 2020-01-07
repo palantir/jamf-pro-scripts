@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -7,8 +7,8 @@
 #                   Reformats browser agent string to full name when one of a
 #                   list of common browsers.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -34,9 +34,9 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUserHome=$("/usr/bin/dscl" . -read /Users/$loggedInUser NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
-defaultBrowser=$("/usr/bin/defaults" read "$loggedInUserHome/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" | "/usr/bin/grep" -B1 https | "/usr/bin/awk" -F\" '/LSHandlerRoleAll/ {print $2}')
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+defaultBrowser=$(/usr/bin/defaults read "$loggedInUserHome/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" LSHandlers | /usr/bin/grep -B1 https | /usr/bin/awk -F\" '/LSHandlerRoleAll/ {print $2}')
 
 
 
@@ -44,27 +44,30 @@ defaultBrowser=$("/usr/bin/defaults" read "$loggedInUserHome/Library/Preferences
 
 
 
-# output default browser
-if [[ $defaultBrowser = "" ]]; then
+# Convert default browser identifier to readable string (for some known browser strings).
+if [ -z "$defaultBrowser" ]; then
   browserResult="Undefined"
-elif [[ $defaultBrowser = "com.apple.safari" ]]; then
+elif [ "$defaultBrowser" = "com.apple.safari" ]; then
   browserResult="Safari"
-elif [[ $defaultBrowser = "com.google.chrome" ]]; then
+elif [ "$defaultBrowser" = "com.apple.safaritechnologypreview" ]; then
+  browserResult="Safari Technology Preview"
+elif [ "$defaultBrowser" = "com.google.chrome" ]; then
   browserResult="Chrome"
-elif [[ $defaultBrowser = "org.mozilla.firefox" ]]; then
+elif [ "$defaultBrowser" = "org.mozilla.firefox" ]; then
   browserResult="Firefox"
-elif [[ $defaultBrowser = "org.mozilla.aurora" ]]; then
+elif [ "$defaultBrowser" = "org.mozilla.aurora" ]; then
   browserResult="Firefox Developer Edition"
-elif [[ $defaultBrowser = "org.mozilla.nightly" ]]; then
+elif [ "$defaultBrowser" = "org.mozilla.nightly" ]; then
   browserResult="Firefox Nightly"
-elif [[ $defaultBrowser = "com.parallels.desktop.console" ]]; then
+elif [ "$defaultBrowser" = "com.parallels.desktop.console" ]; then
   browserResult="Parallels Desktop"
 else
   browserResult="$defaultBrowser"
 fi
 
 
-"/bin/echo" "<result>$browserResult</result>"
+# Report result.
+/bin/echo "<result>$browserResult</result>"
 
 
 

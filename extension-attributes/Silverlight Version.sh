@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Silverlight Version.sh
 #     Description:  Returns Silverlight version (if plugin is installed).
 #         Created:  2017-01-04
-#   Last Modified:  2019-05-15
-#         Version:  1.2.2
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -40,15 +40,16 @@ silverlightPluginPath="/Library/Internet Plug-Ins/Silverlight.plugin"
 
 
 
-# check for presence of target plugin and report version accordingly
-if [[ -e "$silverlightPluginPath" ]]; then
-  silverlightVersion=$("/usr/bin/defaults" read "$silverlightPluginPath/Contents/Info" "SilverlightVersion")
+# Check for presence of target file and get version.
+if [ -e "$silverlightPluginPath" ]; then
+  silverlightVersion=$(/usr/bin/defaults read "$silverlightPluginPath/Contents/Info" SilverlightVersion)
 else
   silverlightVersion=""
 fi
 
 
-"/bin/echo" "<result>$silverlightVersion</result>"
+# Report result.
+/bin/echo "<result>$silverlightVersion</result>"
 
 
 

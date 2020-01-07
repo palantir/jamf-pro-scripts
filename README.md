@@ -23,7 +23,7 @@ See [Computer Extension Attributes](http://docs.jamf.com/jamf-pro/administrator-
 We welcome all contributions from the open source community to be submitted for review (in the form of GitHub pull requests). Feel free to fork this project and submit changes for approval, but please verify the following beforehand:
 
 - All scripts in this project are intended to run from a Jamf Pro install. We encourage repurposing these scripts as needed for your own environment (under the license terms), but will not store scripts here that do not function in Jamf Pro policies or extension attributes.
-- Please make every effort to follow existing conventions and style when modifying or adding scripts to maintain consistency. We realize that the code style used in this project may not exactly match what is seen in Bash scripts elsewhere, but this is in an effort to improve legibility and understanding of script functionality for educational purposes. This means verbose commenting, extra whitespace, and quote-surrounded file paths wherever possible, as well as version number iteration and Created/Last Modified labels when a change is made.
+- Please make every effort to follow existing conventions and style when modifying or adding scripts to maintain consistency. We realize that the code style used in this project may not exactly match what is seen in shell scripts elsewhere, but this is in an effort to improve legibility and understanding of script functionality for educational purposes. This means verbose commenting, extra whitespace, and quote-surrounded file paths wherever possible, as well as version number iteration and Created/Last Modified labels when a change is made.
 
 Thank you so much for taking the time to contribute!
 

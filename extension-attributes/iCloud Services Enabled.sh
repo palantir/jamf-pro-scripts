@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/zsh
 
 ###
 #
 #            Name:  iCloud Services Enabled.sh
 #     Description:  Returns list of enabled iCloud syncing services.
 #         Created:  2018-08-15
-#   Last Modified:  2019-05-09
-#         Version:  1.0.1
+#   Last Modified:  2020-01-07
+#         Version:  1.1
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -32,11 +32,10 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUserHome=$("/usr/bin/dscl" . -read "/Users/$loggedInUser" NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 icloudPlist="$loggedInUserHome/Library/Preferences/MobileMeAccounts.plist"
 plistbuddy="/usr/libexec/PlistBuddy"
-icloudServices=""
 
 
 
@@ -44,24 +43,26 @@ icloudServices=""
 
 
 
-# check that MobileMeAccounts.plist exists for $loggedInUser, read Services array to $icloudServices
+# Check for presence of target file and get list of services.
 if [[ -e "$icloudPlist" ]]; then
-  servicesCount=$("$plistbuddy" -x -c "print :Accounts:0:Services" "$icloudPlist" | "/usr/bin/grep" -c "<dict>")
+  servicesCount=$("$plistbuddy" -x -c "print :Accounts:0:Services" "$icloudPlist" | /usr/bin/grep -c "<dict>")
   for (( i=0;i<servicesCount;i++ )); do
     if [[ $("$plistbuddy" -c "print :Accounts:0:Services:$i:Enabled" "$icloudPlist" 2>&1) != "false" ]] && [[ $("$plistbuddy" -c "print :Accounts:0:Services:$i:status" "$icloudPlist" 2>&1) != "inactive" ]]; then
       serviceName=$("$plistbuddy" -c "print :Accounts:0:Services:$i:Name" "$icloudPlist")
       if [[ "$icloudServices" = "" ]]; then
         icloudServices="$serviceName"
       else
-        icloudServices=$("/bin/echo" "$icloudServices"; "/bin/echo" "$serviceName")
+        icloudServices=$(/bin/echo "$icloudServices"; "/bin/echo" "$serviceName")
       fi
     fi
   done
+else
+  icloudServices=""
 fi
 
 
-# echo result
-"/bin/echo" "<result>$icloudServices</result>"
+# Report result.
+/bin/echo "<result>$icloudServices</result>"
 
 
 

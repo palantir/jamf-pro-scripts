@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Returns 1Password license info (if application is
 #                   installed).
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.2
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,10 +33,9 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUserHome=$("/usr/bin/dscl" . -read "/Users/$loggedInUser" NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 onePWContainer="$loggedInUserHome/Library/Group Containers/2BUA8C4S2C.com.agilebits"
-onePWCheck=$("/bin/ls" "/Applications/" | "/usr/bin/grep" "1Password")
 
 
 
@@ -44,21 +43,23 @@ onePWCheck=$("/bin/ls" "/Applications/" | "/usr/bin/grep" "1Password")
 
 
 
-if [[ "$onePWCheck" = "" ]]; then
-  licenseStatus=""
-else
-  # if 1Password exists, checks for presence of either license file or Mac App Store receipt
-  if [[ -e "$onePWContainer/License/License.onepassword-license" ]]; then
+# Check for 1Password application.
+if /usr/bin/find /Applications -maxdepth 1 | /usr/bin/grep -q 1Password; then
+  # Check for presence of target license file or Mac App Store receipt.
+  if [ -e "$onePWContainer/License/1Password 7 License.onepassword7-license-mac" ]; then
     licenseStatus="Licensed"
-  elif [[ -e "$onePWContainer/App\ Store\ Receipts/receipt" ]]; then
+  elif [ -e "$onePWContainer/App Store Receipts/receipt" ]; then
     licenseStatus="Mac App Store"
   else
     licenseStatus="Trial"
   fi
+else
+  licenseStatus=""
 fi
 
 
-"/bin/echo" "<result>$licenseStatus</result>"
+# Report result.
+/bin/echo "<result>$licenseStatus</result>"
 
 
 

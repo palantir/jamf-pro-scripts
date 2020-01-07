@@ -5,8 +5,8 @@
 #            Name:  Adobe Flash Version.sh
 #     Description:  Returns Adobe Flash version (if plugin is installed).
 #         Created:  2016-06-06
-#   Last Modified:  2019-05-15
-#         Version:  1.2.2
+#   Last Modified:  2020-01-07
+#         Version:  1.2.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -40,15 +40,16 @@ flashPluginPath="/Library/Internet Plug-Ins/Flash Player.plugin"
 
 
 
-# check for presence of target plugin and report version accordingly
-if [[ -e "$flashPluginPath" ]] ; then
-  flashVersion=$("/usr/bin/defaults" read "$flashPluginPath/Contents/version.plist" "CFBundleVersion")
+# Check for presence of target file and get version.
+if [ -e "$flashPluginPath" ] ; then
+  flashVersion=$(/usr/bin/defaults read "$flashPluginPath/Contents/version.plist" CFBundleVersion)
 else
   flashVersion=""
 fi
 
 
-"/bin/echo" "<result>$flashVersion</result>"
+# Report result.
+/bin/echo "<result>$flashVersion</result>"
 
 
 

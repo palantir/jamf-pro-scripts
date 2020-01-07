@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Parallels License Status.sh
 #     Description:  Returns Parallels license info (if Parallels is installed).
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.3.1
+#   Last Modified:  2020-01-07
+#         Version:  1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-parallelsCheck=$("/bin/ls" "/Applications/" | "/usr/bin/grep" "Parallels")
+parallelsCommandLineTool="/usr/local/bin/prlsrvctl"
 
 
 
@@ -40,20 +40,20 @@ parallelsCheck=$("/bin/ls" "/Applications/" | "/usr/bin/grep" "Parallels")
 
 
 
-# if Parallels doesn't exist, mark as Not Installed
-if [[ "$parallelsCheck" = "" ]]; then
-  licenseStatus=""
-else
-  # if Parallels exists, check license status
-  if [[ $("/usr/local/bin/prlsrvctl" info --license | "/usr/bin/awk" -F\" '/status/ {print $2}') = "ACTIVE" ]]; then
+# Check for presence of target binary and get licensing info.
+if [ -e "$parallelsCommandLineTool" ]; then
+  parallelsLicenseStatusCheck=$("$parallelsCommandLineTool" info --license | /usr/bin/awk -F\" '/status/ {print $2}')
+  if [ "$parallelsLicenseStatusCheck" = "ACTIVE" ]; then
     licenseStatus="Licensed"
   else
     licenseStatus="Trial"
   fi
+else
+  licenseStatus=""
 fi
 
 
-"/bin/echo" "<result>$licenseStatus</result>"
+/bin/echo "<result>$licenseStatus</result>"
 
 
 

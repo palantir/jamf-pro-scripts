@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Time Machine.sh
 #     Description:  Returns whether Time Machine is enabled.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-timeMachineAutoBackup=$("/usr/bin/defaults" read "/Library/Preferences/com.apple.TimeMachine.plist" "AutoBackup")
+timeMachineAutoBackup=$(/usr/bin/defaults read "/Library/Preferences/com.apple.TimeMachine.plist" AutoBackup 2>/dev/null)
 
 
 
@@ -40,14 +40,16 @@ timeMachineAutoBackup=$("/usr/bin/defaults" read "/Library/Preferences/com.apple
 
 
 
-if [[ "$timeMachineAutoBackup" = "1" ]]; then
+# Get Time Machine AutoBackup setting.
+if [ "$timeMachineAutoBackup" = "1" ]; then
   timeMachineStatus="Enabled"
 else
   timeMachineStatus=""
 fi
 
 
-"/bin/echo" "<result>$timeMachineStatus</result>"
+# Report result.
+/bin/echo "<result>$timeMachineStatus</result>"
 
 
 

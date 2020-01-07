@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Reports Computer Account name for Active Directory record
 #                   (if computer is bound to domain).
 #         Created:  2016-08-22
-#   Last Modified:  2018-06-20
-#         Version:  2.0.1
+#   Last Modified:  2020-01-07
+#         Version:  2.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,7 +33,7 @@
 
 
 
-adComputerAccountName=$("/usr/sbin/dsconfigad" -show | "/usr/bin/awk" -F[=$] '/Computer Account/ {print $2}' | "/usr/bin/sed" 's/^ *//')
+adComputerAccountName=$(/usr/sbin/dsconfigad -show | /usr/bin/awk -F[=$] '/Computer Account/ {print $2}' | /usr/bin/sed 's/^ *//')
 
 
 
@@ -41,7 +41,8 @@ adComputerAccountName=$("/usr/sbin/dsconfigad" -show | "/usr/bin/awk" -F[=$] '/C
 
 
 
-"/bin/echo" "<result>$adComputerAccountName</result>"
+# Report result.
+/bin/echo "<result>$adComputerAccountName</result>"
 
 
 

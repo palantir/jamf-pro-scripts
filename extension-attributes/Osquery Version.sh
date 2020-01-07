@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Osquery Version.sh
 #     Description:  Returns Osquery version (if installed).
 #         Created:  2017-07-13
-#   Last Modified:  2018-06-20
-#         Version:  2.1.1
+#   Last Modified:  2020-01-07
+#         Version:  2.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -40,14 +40,16 @@ osquerydPath="/usr/local/bin/osqueryd"
 
 
 
-if [[ -e "$osquerydPath" ]]; then
-  osqueryVersion=$("$osquerydPath" --version | "/usr/bin/awk" '{print $3}')
+# Check for presence of target binary and get version.
+if [ -e "$osquerydPath" ]; then
+  osqueryVersion=$("$osquerydPath" --version | /usr/bin/awk '{print $3}')
 else
   osqueryVersion=""
 fi
 
 
-"/bin/echo" "<result>$osqueryVersion</result>"
+# Report result.
+/bin/echo "<result>$osqueryVersion</result>"
 
 
 

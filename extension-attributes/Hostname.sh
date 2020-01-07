@@ -5,8 +5,8 @@
 #            Name:  Hostname.sh
 #     Description:  Returns the hostname of the computer.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -28,19 +28,12 @@
 
 
 
-########## variable-ing ##########
-
-
-
-macHostname=$("/bin/hostname" 2>&1)
-
-
-
 ########## main process ##########
 
 
 
-"/bin/echo" "<result>$macHostname</result>"
+# Report hostname.
+/bin/echo "<result>$(/bin/hostname 2>&1)</result>"
 
 
 

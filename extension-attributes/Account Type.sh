@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Returns whether the logged-in account is a domain user or a
 #                   local user.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.1.2
+#   Last Modified:  2020-01-07
+#         Version:  1.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,7 +33,7 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 
 
 
@@ -41,13 +41,16 @@ loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 
 
 
-if [[ $("/usr/bin/id" -u "$loggedInUser") -gt 999999999 ]]; then
-  result="Domain User"
+# Check OriginalNodeName attribute to determine domain user status.
+if /usr/bin/dscl . -read "/Users/$loggedInUser" OriginalNodeName 2>&1 | grep -q "No such key"; then
+  accountType="Local User"
 else
-  result="Local User"
+  accountType="Domain User"
 fi
 
-"/bin/echo" "<result>$result</result>"
+
+# Report result.
+/bin/echo "<result>$accountType</result>"
 
 
 

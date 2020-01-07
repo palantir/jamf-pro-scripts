@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Santa Version.sh
 #     Description:  Returns Santa version (if installed).
 #         Created:  2017-12-13
-#   Last Modified:  2018-06-20
-#         Version:  1.1.1
+#   Last Modified:  2020-01-07
+#         Version:  1.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -40,15 +40,16 @@ santaPath="/usr/local/bin/santactl"
 
 
 
-# check for presence of target binary and report version accordingly
-if [[ -e "$santaPath" ]]; then
-  santaVersion=$("$santaPath" version | "/usr/bin/awk" '/santactl/ {print $NF}')
+# Check for presence of target binary and get version.
+if [ -e "$santaPath" ]; then
+  santaVersion=$("$santaPath" version | /usr/bin/awk '/santactl/ {print $NF}')
 else
   santaVersion=""
 fi
 
 
-"/bin/echo" "<result>$santaVersion</result>"
+# Report result.
+/bin/echo "<result>$santaVersion</result>"
 
 
 
