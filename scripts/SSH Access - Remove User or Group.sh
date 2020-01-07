@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Removes target user or group from SSH membership at
 #                   $sshGroup.
 #         Created:  2017-09-25
-#   Last Modified:  2018-06-20
-#         Version:  1.1.1
+#   Last Modified:  2020-01-07
+#         Version:  1.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,10 +33,10 @@
 
 
 
-# Jamf script parameter "Target ID"
+# Jamf Pro script parameter "Target ID"
 targetID="$4"
-# Jamf script parameter "Target Type"
-# Must be either "user" or "group"
+# Jamf Pro script parameter "Target Type"
+# Must be either "user" or "group".
 targetType="$5"
 sshGroup="com.apple.access_ssh"
 
@@ -46,15 +46,15 @@ sshGroup="com.apple.access_ssh"
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
+  jamfProArguments=(
     "$targetID"
     "$targetType"
   )
-  for argument in "${jamfArguments[@]}"; do
-    if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
+  for argument in "${jamfProArguments[@]}"; do
+    if [[ -z "$argument" ]]; then
+      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -66,31 +66,29 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
-# exits if Target Type is an incorrect value
+# Exit if Target Type is an incorrect value.
 if [[ "$targetType" != "user" ]] && [[ "$targetType" != "group" ]]; then
-  "/bin/echo" "Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf policy."
+  /bin/echo "❌ ERROR: Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf policy."
   exit 1
 fi
 
 
-# creates com.apple.access_ssh if missing
-if [[ $("/usr/sbin/dseditgroup" -o read "$sshGroup") = "Group not found." ]]; then
-  "/usr/sbin/dseditgroup" -o create "$sshGroup"
+# Create com.apple.access_ssh if missing.
+if [[ $(/usr/sbin/dseditgroup -o read "$sshGroup") = "Group not found." ]]; then
+  /usr/sbin/dseditgroup -o create "$sshGroup"
 fi
 
 
-# removes target user or group from com.apple.access_ssh
-"/usr/sbin/dseditgroup" -o edit \
+# Remove target user or group from com.apple.access_ssh.
+/usr/sbin/dseditgroup -o edit \
   -d "$targetID" \
   -t "$targetType" \
   "$sshGroup"
-
-
-"/bin/echo" "Removed $targetID from $sshGroup."
+/bin/echo "Removed $targetID from $sshGroup."
 
 
 
