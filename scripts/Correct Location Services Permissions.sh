@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
@@ -6,8 +6,8 @@
 #     Description:  Corrects permissions on the plist controlling Location
 #                   Services settings.
 #         Created:  2017-08-04
-#   Last Modified:  2018-06-20
-#         Version:  1.0.2
+#   Last Modified:  2020-01-07
+#         Version:  1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -36,9 +36,9 @@
 locationdUser="_locationd"
 locationdPath="/var/db/locationd"
 locationdByHost="$locationdPath/Library/Preferences/ByHost/"
-locationdPermissionsCheck=$("/bin/ls" -l $locationdByHost | \
-  "/usr/bin/sed" 1d | \
-  "/usr/bin/grep" -v "$locationdUser.*$locationdUser")
+locationdPermissionsCheck=$(/bin/ls -l $locationdByHost | \
+  /usr/bin/sed 1d | \
+  /usr/bin/grep -v "$locationdUser.*$locationdUser")
 
 
 
@@ -46,13 +46,13 @@ locationdPermissionsCheck=$("/bin/ls" -l $locationdByHost | \
 
 
 
-if [[ "$locationdPermissionsCheck" = "" ]]; then
-  "/bin/echo" "All locationd settings files owned by $locationdUser, no action required."
+if [ -z "$locationdPermissionsCheck" ]; then
+  /bin/echo "All locationd settings files owned by $locationdUser, no action required."
 else
-  "/bin/echo" "Incorrect permissions found in locationd settings files."
-  "/bin/echo" "$locationdPermissionsCheck"
-  "/usr/sbin/chown" -R "$locationdUser":"$locationdUser" "$locationdPath"
-  "/bin/echo" "Repaired permissions, all settings files now owned by $locationdUser."
+  /bin/echo "Incorrect permissions found in locationd settings files."
+  /bin/echo "$locationdPermissionsCheck"
+  /usr/sbin/chown -R "$locationdUser":"$locationdUser" "$locationdPath"
+  /bin/echo "Repaired permissions, all settings files now owned by $locationdUser."
 fi
 
 
