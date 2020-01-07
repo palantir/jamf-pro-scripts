@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2086
 
 ###
 #
@@ -6,8 +7,8 @@
 #     Description:  Encrypts volume /Volumes/$volumeName with a randomized
 #                   password, saves password to the System keychain.
 #         Created:  2016-04-05
-#   Last Modified:  2018-06-20
-#         Version:  4.0.1
+#   Last Modified:  2020-01-07
+#         Version:  4.0.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,13 +34,13 @@
 
 
 
-# Jamf script parameter: "Volume Name"
+# Jamf Pro script parameter: "Volume Name"
 volumeName="$4"
-# do not change these values
-macOSVersion=$("/usr/bin/sw_vers" -productVersion | "/usr/bin/awk" -F. '{print $2}')
-volumeInfo=$("/usr/sbin/diskutil" info "$volumeName")
-volumeFileSystemPersonality=$("/bin/echo" "$volumeInfo" | "/usr/bin/awk" -F: '/File System Personality/ {print $NF}' | "/usr/bin/sed" 's/^ *//')
-volumePassphrase=$("/bin/cat" "/dev/urandom" | LC_CTYPE=C tr -dc 'A-NP-Za-km-z0-9' | "/usr/bin/head" -c 20)
+# Do not change these values.
+macOSVersion=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
+volumeInfo=$(/usr/sbin/diskutil info "$volumeName")
+volumeFileSystemPersonality=$(/bin/echo "$volumeInfo" | /usr/bin/awk -F: '/File System Personality/ {print $NF}' | /usr/bin/sed 's/^ *//')
+volumePassphrase=$(LC_CTYPE=C /usr/bin/tr -dc 'A-NP-Za-km-z0-9' < "/dev/urandom" | /usr/bin/head -c 20)
 
 
 
@@ -47,14 +48,14 @@ volumePassphrase=$("/bin/cat" "/dev/urandom" | LC_CTYPE=C tr -dc 'A-NP-Za-km-z0-
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
+  jamfProArguments=(
     "$volumeName"
   )
-  for argument in "${jamfArguments[@]}"; do
-    if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
+  for argument in "${jamfProArguments[@]}"; do
+    if [[ -z "$argument" ]]; then
+      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -62,50 +63,50 @@ check_jamf_arguments () {
 
 
 
-# exits if Mac is running macOS < 10.12 Sierra
-check_macos () {
+# Exits if Mac is running macOS < 10.12 Sierra.
+function check_macos {
   if [[ $macOSVersion -lt 12 ]]; then
-    "/bin/echo" "This script requires macOS 10.12 Sierra or later."
+    /bin/echo "This script requires macOS 10.12 Sierra or later."
     exit 72
   fi
 }
 
 
 # checks for presence of volume
-check_volume () {
-  if [[ $("/usr/sbin/diskutil" list | "/usr/bin/grep" "$volumeName") = "" ]]; then
-    "/bin/echo" "Volume $volumeName missing, unable to proceed."
+function check_volume {
+  if /usr/sbin/diskutil list | ! /usr/bin/grep -q "$volumeName"; then
+    /bin/echo "Volume $volumeName missing, unable to proceed."
     exit 72
   else
-    volumeIdentifier=$("/usr/sbin/diskutil" list | "/usr/bin/grep" "$volumeName" | "/usr/bin/awk" '{print $NF}')
+    volumeIdentifier=$(/usr/sbin/diskutil list | /usr/bin/grep "$volumeName" | /usr/bin/awk '{print $NF}')
   fi
 }
 
 
-# unmounts Recovery volume if mounted
-unmount_recovery_volume () {
-  recoveryVolumeIdentifier=$("/usr/sbin/diskutil" list | "/usr/bin/awk" '/Recovery HD/ {print $NF}')
-  if [[ $("/sbin/mount" | "/usr/bin/grep" "$recoveryVolumeIdentifier") != "" ]]; then
-    "/usr/sbin/diskutil" unmount "$recoveryVolumeIdentifier"
-    "/bin/echo" "Unmounted Recovery volume."
+# Unmounts Recovery volume (if mounted).
+function unmount_recovery_volume {
+  recoveryVolumeIdentifier=$(/usr/sbin/diskutil list | /usr/bin/awk '/Recovery HD/ {print $NF}')
+  if /sbin/mount | /usr/bin/grep -q "$recoveryVolumeIdentifier"; then
+    /usr/sbin/diskutil unmount "$recoveryVolumeIdentifier"
+    /bin/echo "Unmounted Recovery volume."
   fi
 }
 
 
-# encrypts new volume with randomly-generated password
-encrypt_volume () {
-  "/usr/sbin/diskutil" $encryptVolumeVerb \
+# Encrypts new volume with randomly-generated password.
+function encrypt_volume {
+  /usr/sbin/diskutil $encryptVolumeVerb \
     "$volumeIdentifier" \
     $encryptionUserString \
     -passphrase "$volumePassphrase"
   sleep 5
-  "/bin/echo" "Volume $volumeName is encrypting with a randomized password."
+  /bin/echo "Volume $volumeName is encrypting with a randomized password."
 }
 
 
-# saves encrypted volume password to the System keychain
-save_volume_password_to_system_keychain () {
-  "/usr/bin/security" add-generic-password \
+# Saves encrypted volume password to the System keychain.
+function save_volume_password_to_system_keychain {
+  /usr/bin/security add-generic-password \
     -a "$volumeUUID" \
     -l "$volumeName" \
     -s "$volumeUUID" \
@@ -113,7 +114,7 @@ save_volume_password_to_system_keychain () {
     -A \
     -D "encrypted volume password" \
     "/Library/Keychains/System.keychain"
-  "/bin/echo" "$volumeName password saved to the System keychain."
+  /bin/echo "$volumeName password saved to the System keychain."
 }
 
 
@@ -122,32 +123,31 @@ save_volume_password_to_system_keychain () {
 
 
 
-# verify system meets all script requirements (each function will exit if respective check fails)
-check_jamf_arguments
+# Verify system meets all script requirements (each function will exit if respective check fails).
+check_jamf_pro_arguments
 check_macos
 check_volume
 
 
-# encrypt volume
-# syntax differs depending on file system format of target volume
-if [[ "$volumeFileSystemPersonality" =~ "APFS" ]]; then
+# Encrypt volume (syntax differs depending on file system format of target volume).
+if [[ "$volumeFileSystemPersonality" = *"APFS"* ]]; then
   encryptVolumeVerb="apfs encryptVolume"
   encryptionUserString="-user disk"
   encrypt_volume
-  volumeUUID=$("/usr/sbin/diskutil" info "$volumeName" | "/usr/bin/awk" '/Volume UUID/ {print $3}')
-elif [[ "$volumeFileSystemPersonality" =~ "Journaled HFS+" ]]; then
+  volumeUUID=$(/usr/sbin/diskutil info "$volumeName" | /usr/bin/awk '/Volume UUID/ {print $3}')
+elif [[ "$volumeFileSystemPersonality" = *"Journaled HFS+"* ]]; then
   encryptVolumeVerb="coreStorage convert"
   encryptionUserString=""
   unmount_recovery_volume
   encrypt_volume
-  volumeUUID=$("/usr/sbin/diskutil" info "$volumeName" | "/usr/bin/awk" '/LV UUID/ {print $3}')
+  volumeUUID=$(/usr/sbin/diskutil info "$volumeName" | /usr/bin/awk '/LV UUID/ {print $3}')
 else
-  "/bin/echo" "Unsupported file system: $volumeFileSystemPersonality"
+  /bin/echo "Unsupported file system: $volumeFileSystemPersonality"
   exit 1
 fi
 
 
-# save encrypted volume password to the System keychain
+# Save encrypted volume password to the System keychain.
 save_volume_password_to_system_keychain
 
 

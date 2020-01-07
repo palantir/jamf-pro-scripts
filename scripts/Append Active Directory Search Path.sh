@@ -5,8 +5,8 @@
 #            Name:  Append Active Directory Search Path.sh
 #     Description:  Adds domain search path.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.1.1
+#   Last Modified:  2020-01-07
+#         Version:  1.1.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-# Jamf script parameter "Domain"
+# Jamf Pro script parameter "Domain"
 # Should be in all-caps with no domain extensions.
 DOMAIN="$5"
 
@@ -42,17 +42,12 @@ DOMAIN="$5"
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
-    "$DOMAIN"
-  )
-  for argument in "${jamfArguments[@]}"; do
-    if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
-      exit 74
-    fi
-  done
+# Exits if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments () {
+  if [ -z "$DOMAIN" ]; then
+    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
 }
 
 
@@ -61,12 +56,12 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
-# appends domain search path
-"/usr/bin/dscl" /Search -append / CSPSearchPath "/Active Directory/$DOMAIN/All Domains"
+# Append domain search path.
+/usr/bin/dscl /Search -append / CSPSearchPath "/Active Directory/$DOMAIN/All Domains"
 
 
 

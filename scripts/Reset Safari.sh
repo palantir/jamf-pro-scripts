@@ -6,8 +6,8 @@
 #     Description:  Resets all Safari user data to defaults for the currently
 #                   logged-in user.
 #         Created:  2016-08-18
-#   Last Modified:  2019-04-25
-#         Version:  2.1.2
+#   Last Modified:  2020-01-07
+#         Version:  2.1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,10 +33,10 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUserHome=$("/usr/bin/dscl" . -read /Users/$loggedInUser NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 userLibrary="$loggedInUserHome/Library"
-uuid=$("/usr/sbin/system_profiler" SPHardwareDataType | "/usr/bin/awk" '/Hardware UUID/ {print $NF}')
+uuid=$(/usr/sbin/system_profiler SPHardwareDataType | /usr/bin/awk '/Hardware UUID/ {print $NF}')
 preferencesToReset=(
   "$userLibrary/Caches/Metadata/Safari"
   "$userLibrary/Caches/com.apple.Safari"
@@ -61,11 +61,11 @@ preferencesToReset=(
 
 
 
-# delete Safari preference files
-"/bin/echo" "Deleting Safari preference files to reset to system default..."
-for safariPref in ${preferencesToReset[@]}; do
-  if [[ -e "$safariPref" ]]; then
-    "/bin/rm" -rv "$safariPref"
+# Delete Safari preference files.
+/bin/echo "Deleting Safari preference files to reset to system default..."
+for safariPref in "${preferencesToReset[@]}"; do
+  if [ -e "$safariPref" ]; then
+    /bin/rm -rv "$safariPref"
   fi
 done
 

@@ -6,8 +6,8 @@
 #     Description:  Adds new SSH public key to specified user account for
 #                   remote access, replacing any existing keys.
 #         Created:  2017-02-14
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.2.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,11 +33,11 @@
 
 
 
-# Jamf script parameter "Target User"
+# Jamf Pro script parameter "Target User"
 targetUser="$4"
-targetUserHome="$5"
-# Jamf script parameter "Public SSH Key Path"
+# Jamf Pro script parameter "Public SSH Key Path"
 publicSSHKeyPath="$6"
+targetUserHome=$(/usr/bin/dscl . -read "/Users/$targetUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 targetUserSSHSettings="$targetUserHome/.ssh"
 targetUserSSHAuthorizedKeysPath="$targetUserSSHSettings/authorized_keys"
 
@@ -47,19 +47,27 @@ targetUserSSHAuthorizedKeysPath="$targetUserSSHSettings/authorized_keys"
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
+  jamfProArguments=(
     "$targetUser"
-    "$targetUserHome"
     "$publicSSHKeyPath"
   )
-  for argument in "${jamfArguments[@]}"; do
+  for argument in "${jamfProArguments[@]}"; do
     if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
+      "/bin/echo" "Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
+}
+
+
+# Exits if public SSH key does not exist.
+function public_ssh_key_check {
+  if [ ! -e "$publicSSHKeyPath" ]; then
+    /bin/echo "Public SSH Key not found at specified path, unable to proceed. Please check Public SSH Key Path parameter in Jamf policy."
+    exit 74
+  fi
 }
 
 
@@ -68,32 +76,27 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
+public_ssh_key_check
 
 
-# exit if public SSH key does not exist
-public_ssh_key_check () {
-  if [[ ! -e "$publicSSHKeyPath" ]]; then
-    "/bin/echo" "Public SSH Key not found at specified path, unable to proceed. Please check Public SSH Key Path parameter in Jamf policy."
-    exit 74
-  fi
-}
 
 
-# remove existing SSH keys if present
-if [[ -e "$targetUserSSHAuthorizedKeysPath" ]]; then
-  "/bin/rm" "$targetUserSSHAuthorizedKeysPath"
+
+# Remove existing SSH keys if present.
+if [ -e "$targetUserSSHAuthorizedKeysPath" ]; then
+  /bin/rm "$targetUserSSHAuthorizedKeysPath"
 fi
 
 
-# add .ssh/authorized_keys and populate with user's public key
-"/bin/mkdir" -p "$targetUserSSHSettings"
-"/usr/bin/touch" "$targetUserSSHAuthorizedKeysPath"
-"/bin/echo" "$publicSSHKey" >> "$targetUserSSHAuthorizedKeysPath"
-"/usr/sbin/chown" -R "$targetUser" "$targetUserSSHSettings/"
-"/bin/chmod" 700 "$targetUserSSHSettings"
-"/bin/chmod" 600 "$targetUserSSHAuthorizedKeysPath"
+# Add .ssh/authorized_keys and populate with user's public key.
+/bin/mkdir -p "$targetUserSSHSettings"
+/usr/bin/touch "$targetUserSSHAuthorizedKeysPath"
+/bin/cat "$publicSSHKeyPath" >> "$targetUserSSHAuthorizedKeysPath"
+/usr/sbin/chown -R "$targetUser" "$targetUserSSHSettings/"
+/bin/chmod 700 "$targetUserSSHSettings"
+/bin/chmod 600 "$targetUserSSHAuthorizedKeysPath"
 
 
 

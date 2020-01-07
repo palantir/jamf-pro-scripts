@@ -5,8 +5,8 @@
 #            Name:  Convert Admin Account to Standard.sh
 #     Description:  Removes admin privileges from target account.
 #         Created:  2017-08-17
-#   Last Modified:  2018-06-20
-#         Version:  1.2.1
+#   Last Modified:  2020-01-07
+#         Version:  1.2.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -41,17 +41,12 @@ targetAccount="$4"
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
-    "$targetAccount"
-  )
-  for argument in "${jamfArguments[@]}"; do
-    if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
-      exit 74
-    fi
-  done
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
+  if [ -z "$targetAccount" ]; then
+    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
 }
 
 
@@ -60,16 +55,16 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
-# remove admin privileges from $targetAccount
-if [[ $("/usr/bin/dscl" . list "/Users" | "/usr/bin/grep" "$targetAccount") = "" ]]; then
-  "/bin/echo" "$targetAccount does not exist, no action required."
+# Remove admin privileges from $targetAccount.
+if /usr/bin/dscl . list "/Users" | /usr/bin/grep -q "$targetAccount"; then
+  /bin/echo "$targetAccount does not exist, no action required."
 else
-  "/usr/sbin/dseditgroup" -o edit -d "$targetAccount" admin
-  "/bin/echo" "Removed $targetAccount admin privileges."
+  /usr/sbin/dseditgroup -o edit -d "$targetAccount" admin
+  /bin/echo "Removed $targetAccount admin privileges."
 fi
 
 

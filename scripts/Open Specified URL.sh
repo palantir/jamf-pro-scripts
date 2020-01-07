@@ -5,8 +5,8 @@
 #            Name:  Open Specified URL.sh
 #     Description:  Opens specified URL in system default browser.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  2.0.3
+#   Last Modified:  2020-01-07
+#         Version:  2.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,8 +32,22 @@
 
 
 
-# Jamf script parameter "URL"
+# Jamf Pro script parameter "URL"
 targetURL="$4"
+
+
+
+########## function-ing ##########
+
+
+
+# Exits if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments () {
+  if [ -z "$targetURL" ]; then
+    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
+}
 
 
 
@@ -41,8 +55,12 @@ targetURL="$4"
 
 
 
-# opens specified URL
-"/usr/bin/open" "$targetURL"
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
+
+
+# Opens specified URL.
+/usr/bin/open "$targetURL"
 
 
 

@@ -5,8 +5,8 @@
 #            Name:  Install Xcode Command Line Tools.sh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2019-06-11
-#         Version:  5.3
+#   Last Modified:  2020-01-07
+#         Version:  5.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,9 +33,9 @@
 
 
 # Check current state of Xcode Command Line Tools installation.
-function xcodeCheck {
-  xcodeSelectCheck=$("/usr/bin/xcode-select" -p 2>&1)
-  if [[ "$xcodeSelectCheck" = "/Applications/Xcode.app/Contents/Developer" || "$xcodeSelectCheck" = "/Library/Developer/CommandLineTools" ]]; then
+function xcode_check {
+  xcodeSelectCheck=$(/usr/bin/xcode-select -p 2>&1)
+  if [ "$xcodeSelectCheck" = "/Applications/Xcode.app/Contents/Developer" ] || [ "$xcodeSelectCheck" = "/Library/Developer/CommandLineTools" ]; then
     xcodeCLI="installed"
   else
     xcodeCLI="missing"
@@ -49,30 +49,28 @@ function xcodeCheck {
 
 
 # Exit if Xcode Command Line Tools are already installed.
-xcodeCheck
-if [[ "$xcodeCLI" = "installed" ]]; then
-  "/bin/echo" "Xcode Command Line Tools already installed, no action required."
+xcode_check
+if [ "$xcodeCLI" = "installed" ]; then
+  /bin/echo "Xcode Command Line Tools already installed, no action required."
   exit 0
 fi
 
 
 # Install Xcode Command Line Tools via softwareupdate.
-"/usr/bin/touch" "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
-xcodeCommandLineTools=$("/usr/sbin/softwareupdate" --list 2>&1 | \
-  "/usr/bin/awk" -F"[*] " '/\* Command Line Tools/ {print $NF}')
+/usr/bin/touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
+xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
+  /usr/bin/awk -F"[*] " '/\* Command Line Tools/ {print $NF}')
 while read -r update; do
-  "/usr/sbin/softwareupdate" --install "$update"
-  "/bin/echo" "✅ Installed $update."
+  /usr/sbin/softwareupdate --install "$update"
+  /bin/echo "✅ Installed $update."
 done <<< "$xcodeCommandLineTools"
 
 
 # Verify successful installation.
-xcodeCheck
-if [[ "$xcodeCLI" = "missing" ]]; then
-  "/bin/echo" "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
+xcode_check
+if [ "$xcodeCLI" = "missing" ]; then
+  /bin/echo "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
   exit 1
-else
-  "/bin/echo" "✅ Installed Xcode Command Line Tools."
 fi
 
 

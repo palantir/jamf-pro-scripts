@@ -6,8 +6,8 @@
 #     Description:  Adds restricted macOS software updates to the softwareupdate
 #                   ignore list, or resets the ignore list.
 #         Created:  2018-01-24
-#   Last Modified:  2019-05-09
-#         Version:  3.0.2
+#   Last Modified:  2020-01-07
+#         Version:  3.0.3
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -55,15 +55,15 @@ updateBlacklist=(
 
 
 # Initialize softwareupdate ignore list.
-if [[ "$resetIgnoreList" = "yes" ]]; then
-  "/usr/sbin/softwareupdate" --reset-ignored
+if [ "$resetIgnoreList" = "yes" ]; then
+  /usr/sbin/softwareupdate --reset-ignored
 fi
 
 
 # Add blacklisted items to softwareupdate ignore list.
 for update in "${updateBlacklist[@]}"; do
-  if [[ -n "$update" ]]; then
-    "/usr/sbin/softwareupdate" --ignore "$update"
+  if [ -n "$update" ]; then
+    /usr/sbin/softwareupdate --ignore "$update"
   fi
 done
 

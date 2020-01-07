@@ -3,11 +3,10 @@
 ###
 #
 #            Name:  Force-Unbind from Domain.sh
-#     Description:  Forces an unbind from Active Directory domain. Note that AD
-#                   credentials are not required for a force-unbind.
+#     Description:  Forces an unbind from Active Directory domain.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  1.1.1
+#   Last Modified:  2020-01-07
+#         Version:  1.1.2
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,7 +32,9 @@
 
 
 
-"/usr/sbin/dsconfigad" -remove -username "NotReal" -password "NotReal" -force
+# Remove domain bind from computer. Runs with -force to not require a working domain connection to complete the action.
+# Note that real AD credentials are not required for a force-unbind.
+/usr/sbin/dsconfigad -remove -username "NotReal" -password "NotReal" -force
 
 
 

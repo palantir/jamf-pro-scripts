@@ -5,8 +5,8 @@
 #            Name:  Set Default Browser and Email Client.sh
 #     Description:  Sets default browser and email client for currently logged-in user.
 #         Created:  2017-09-06
-#   Last Modified:  2018-06-20
-#         Version:  1.4.1
+#   Last Modified:  2020-01-07
+#         Version:  1.4.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -32,14 +32,14 @@
 
 
 
-# Jamf script parameter "Browser Agent String"
-# should be in the format domain.vendor.app (e.g. com.apple.safari)
+# Jamf Pro script parameter "Browser Agent String"
+# Should be in the format domain.vendor.app (e.g. com.apple.safari).
 browserAgentString="$4"
-# Jamf script parameter "Email Agent String"
-# should be in the format domain.vendor.app (e.g. com.apple.mail)
+# Jamf Pro script parameter "Email Agent String"
+# Should be in the format domain.vendor.app (e.g. com.apple.mail).
 emailAgentString="$5"
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
-loggedInUserHome=$("/usr/bin/dscl" . -read "/Users/$loggedInUser" NFSHomeDirectory | "/usr/bin/awk" '{print $NF}')
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 launchServicesPlistFolder="$loggedInUserHome/Library/Preferences/com.apple.LaunchServices"
 launchServicesPlist="$launchServicesPlistFolder/com.apple.launchservices.secure.plist"
 plistbuddyPath="/usr/libexec/PlistBuddy"
@@ -65,15 +65,15 @@ lsregisterPath="/System/Library/Frameworks/CoreServices.framework/Versions/A/Fra
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
-  jamfArguments=(
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
+  jamfProArguments=(
     "$browserAgentString"
     "$emailAgentString"
   )
-  for argument in "${jamfArguments[@]}"; do
-    if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
+  for argument in "${jamfProArguments[@]}"; do
+    if [[ -z "$argument" ]]; then
+      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -85,45 +85,45 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
-# clear out LSHandlers array data from $launchServicesPlist, or create new plist if file does not exist
+# Clear out LSHandlers array data from $launchServicesPlist, or create new plist if file does not exist.
 if [[ -e "$launchServicesPlist" ]]; then
   "$plistbuddyPath" -c "Delete :LSHandlers" "$launchServicesPlist"
-  "/bin/echo" "Reset LSHandlers array from $launchServicesPlist."
+  /bin/echo "Reset LSHandlers array from $launchServicesPlist."
 else
-  "/bin/mkdir" -p "$launchServicesPlistFolder"
+  /bin/mkdir -p "$launchServicesPlistFolder"
   "$plistbuddyPath" -c "Save" "$launchServicesPlist"
-  "/bin/echo" "Created $launchServicesPlist."
+  /bin/echo "Created $launchServicesPlist."
 fi
 
 
-# add new LSHandlers array
+# Add new LSHandlers array.
 "$plistbuddyPath" -c "Add :LSHandlers array" "$launchServicesPlist"
-"/bin/echo" "Initialized LSHandlers array."
+/bin/echo "Initialized LSHandlers array."
 
 
-# sets handler for each URL scheme and content type to specified browser and email client
+# Set handler for each URL scheme and content type to specified browser and email client.
 for plistbuddyCommand in "${plistbuddyPreferences[@]}"; do
   "$plistbuddyPath" -c "$plistbuddyCommand" "$launchServicesPlist"
-  if [[ "$plistbuddyCommand" =~ "$browserAgentString" ]] || [[ "$plistbuddyCommand" =~ "$emailAgentString" ]]; then
-    arrayEntry=$("/bin/echo" "$plistbuddyCommand" | "/usr/bin/awk" -F: '{print $2 ":" $3 ":" $4}' | "/usr/bin/sed" 's/ .*//')
-    prefLabel=$("/bin/echo" "$plistbuddyCommand" | "/usr/bin/awk" '{print $4}')
-    "/bin/echo" "Set $arrayEntry to $prefLabel."
+  if [[ "$plistbuddyCommand" = *"$browserAgentString"* ]] || [[ "$plistbuddyCommand" = *"$emailAgentString"* ]]; then
+    arrayEntry=$(/bin/echo "$plistbuddyCommand" | /usr/bin/awk -F: '{print $2 ":" $3 ":" $4}' | /usr/bin/sed 's/ .*//')
+    prefLabel=$(/bin/echo "$plistbuddyCommand" | /usr/bin/awk '{print $4}')
+    /bin/echo "Set $arrayEntry to $prefLabel."
   fi
 done
 
 
-# fix permissions on $launchServicesPlistFolder
-"/usr/sbin/chown" -R "$loggedInUser" "$launchServicesPlistFolder"
-"/bin/echo" "Fixed permissions on $launchServicesPlistFolder."
+# Fix permissions on $launchServicesPlistFolder.
+/usr/sbin/chown -R "$loggedInUser" "$launchServicesPlistFolder"
+/bin/echo "Fixed permissions on $launchServicesPlistFolder."
 
 
-# reset Launch Services database
+# Reset Launch Services database.
 "$lsregisterPath" -kill -r -domain local -domain system -domain user
-"/bin/echo" "Reset Launch Services database. A restart may also be required for these new default client changes to take effect."
+/bin/echo "Reset Launch Services database. A restart may also be required for these new default client changes to take effect."
 
 
 

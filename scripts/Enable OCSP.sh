@@ -5,8 +5,8 @@
 #            Name:  Enable OCSP.sh
 #     Description:  Enables OCSP secure authentication.
 #         Created:  2016-06-06
-#   Last Modified:  2018-06-20
-#         Version:  2.0.2
+#   Last Modified:  2020-01-07
+#         Version:  2.0.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
+loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 
 
 
@@ -40,7 +40,8 @@ loggedInUser=$("/usr/bin/stat" -f%Su "/dev/console")
 
 
 
-"/usr/bin/sudo" -u "$loggedInUser" "/usr/bin/defaults" write "com.apple.security.revocation" OCSPStyle -string "BestAttempt"
+# Enable OCSP for logged-in user.
+/usr/bin/sudo -u "$loggedInUser" /usr/bin/defaults write "com.apple.security.revocation" OCSPStyle -string "BestAttempt"
 
 
 

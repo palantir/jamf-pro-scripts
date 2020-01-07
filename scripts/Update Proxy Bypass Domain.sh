@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2086
 
 ###
 #
@@ -6,8 +7,8 @@
 #     Description:  For each network interface with a proxy bypass domain entry
 #                   of "*.local", changes to the target domain entry.
 #         Created:  2017-05-23
-#   Last Modified:  2018-10-25
-#         Version:  1.3
+#   Last Modified:  2020-01-07
+#         Version:  1.3.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,10 +34,10 @@
 
 
 
-# Jamf script parameter "Proxy Bypass Domain".
+# Jamf Pro script parameter "Proxy Bypass Domain".
 # Should be in the format "*.domain".
 targetDomain="$4"
-networkInterfaces=$("/usr/sbin/networksetup" -listallnetworkservices | "/usr/bin/sed" 1d)
+networkInterfaces=$(/usr/sbin/networksetup -listallnetworkservices | "/usr/bin/sed" 1d)
 
 
 
@@ -44,8 +45,8 @@ networkInterfaces=$("/usr/sbin/networksetup" -listallnetworkservices | "/usr/bin
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments () {
+# Exits if any required Jamf Pro arguments are undefined.
+function check_jamf_pro_arguments {
   jamfArguments=(
     "$targetDomain"
   )
@@ -63,22 +64,22 @@ check_jamf_arguments () {
 
 
 
-# exits if any required Jamf arguments are undefined
-check_jamf_arguments
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
 
-# replaces all instances of "*.local" in each network interface with "$targetDomain"
+# Replace all instances of "*.local" in each network interface with "$targetDomain".
 while IFS= read -r interface; do
-  bypassDomainsCurrent=$("/usr/sbin/networksetup" -getproxybypassdomains "$interface")
-  if [[ "$bypassDomainsCurrent" =~ "$targetDomain" ]]; then
-    "/bin/echo" "$interface already inclues $targetDomain as proxy bypass domain, no action required."
-  elif [[ "$bypassDomainsCurrent" =~ "There aren't any bypass domains set on" ]]; then
-    "/bin/echo" "No proxy bypass domains defined for $interface, no action required."
+  bypassDomainsCurrent=$(/usr/sbin/networksetup -getproxybypassdomains "$interface")
+  if [[ "$bypassDomainsCurrent" = *"$targetDomain"* ]]; then
+    /bin/echo "$interface already inclues $targetDomain as proxy bypass domain, no action required."
+  elif [[ "$bypassDomainsCurrent" = *"There aren't any bypass domains set on"* ]]; then
+    /bin/echo "No proxy bypass domains defined for $interface, no action required."
   else
-    bypassDomainsUpdate=$("/bin/echo" "$bypassDomainsCurrent" | "/usr/bin/sed" "s/*.local/$targetDomain/" | "/usr/bin/tr" "\n" " ")
-    "/usr/sbin/networksetup" -setproxybypassdomains "$interface" $bypassDomainsUpdate
-    "/bin/echo" "Updated proxy bypass domains for $interface: $bypassDomainsUpdate"
+    bypassDomainsUpdate=$(/bin/echo "$bypassDomainsCurrent" | /usr/bin/sed "s/*.local/$targetDomain/" | /usr/bin/tr "\n" " ")
+    /usr/sbin/networksetup -setproxybypassdomains "$interface" $bypassDomainsUpdate
+    /bin/echo "Updated proxy bypass domains for $interface: $bypassDomainsUpdate"
   fi
 done <<< "$networkInterfaces"
 
