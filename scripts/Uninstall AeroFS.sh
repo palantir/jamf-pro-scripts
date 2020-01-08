@@ -103,12 +103,12 @@ function run_vendor_uninstallers {
 # Quit target processes and remove associated login items.
 function quit_processes {
   for process in "${processNames[@]}"; do
-    if /bin/echo "$currentProcesses" | ! /usr/bin/grep -q "$process"; then
-      /bin/echo "$process not running."
-    else
+    if /bin/echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
       /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"$process\" to quit"
       /usr/bin/osascript -e "tell application \"System Events\" to delete every login item whose name is \"$process\""
       /bin/echo "Quit $process, removed from login items if present."
+    else
+      /bin/echo "$process not running."
     fi
   done
 }
