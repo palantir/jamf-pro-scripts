@@ -7,8 +7,8 @@
 #     Description:  Encrypts volume /Volumes/$volumeName with a randomized
 #                   password, saves password to the System keychain.
 #         Created:  2016-04-05
-#   Last Modified:  2020-01-07
-#         Version:  4.0.2
+#   Last Modified:  2020-01-08
+#         Version:  4.0.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -72,13 +72,13 @@ function check_macos {
 }
 
 
-# checks for presence of volume
+# Checks for presence of volume.
 function check_volume {
-  if /usr/sbin/diskutil list | ! /usr/bin/grep -q "$volumeName"; then
+  if /usr/sbin/diskutil list | /usr/bin/grep -q "$volumeName"; then
+    volumeIdentifier=$(/usr/sbin/diskutil list | /usr/bin/grep "$volumeName" | /usr/bin/awk '{print $NF}')
+  else
     /bin/echo "Volume $volumeName missing, unable to proceed."
     exit 72
-  else
-    volumeIdentifier=$(/usr/sbin/diskutil list | /usr/bin/grep "$volumeName" | /usr/bin/awk '{print $NF}')
   fi
 }
 

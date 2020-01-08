@@ -5,8 +5,8 @@
 #            Name:  Convert Admin Account to Standard.sh
 #     Description:  Removes admin privileges from target account.
 #         Created:  2017-08-17
-#   Last Modified:  2020-01-07
-#         Version:  1.2.2
+#   Last Modified:  2020-01-08
+#         Version:  1.2.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -60,11 +60,11 @@ check_jamf_pro_arguments
 
 
 # Remove admin privileges from $targetAccount.
-if /usr/bin/dscl . list "/Users" | /usr/bin/grep -q "$targetAccount"; then
-  /bin/echo "$targetAccount does not exist, no action required."
-else
+if /usr/bin/dscl . -read "/groups/admin" GroupMembership | /usr/bin/grep -q "$targetAccount"; then
   /usr/sbin/dseditgroup -o edit -d "$targetAccount" admin
   /bin/echo "Removed $targetAccount admin privileges."
+else
+  /bin/echo "$targetAccount is already a standard user, no action required."
 fi
 
 
