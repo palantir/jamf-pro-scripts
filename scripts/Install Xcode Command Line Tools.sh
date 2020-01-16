@@ -5,8 +5,8 @@
 #            Name:  Install Xcode Command Line Tools.sh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2020-01-07
-#         Version:  5.3.1
+#   Last Modified:  2020-01-15
+#         Version:  5.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -56,14 +56,24 @@ if [ "$xcodeCLI" = "installed" ]; then
 fi
 
 
-# Install Xcode Command Line Tools via softwareupdate.
+# Get current Xcode Command Line Tools label via softwareupdate.
 /usr/bin/touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
-xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
-  /usr/bin/awk -F"[*] " '/\* Command Line Tools/ {print $NF}')
-while read -r update; do
-  /usr/sbin/softwareupdate --install "$update"
-  /bin/echo "✅ Installed $update."
-done <<< "$xcodeCommandLineTools"
+macOSVersion=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
+if [[ "$macOSVersion" -lt 15 ]]; then
+  xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
+    /usr/bin/awk -F"[*] " '/\* Command Line Tools/ {print $NF}' | \
+    /usr/bin/sed 's/^ *//' | \
+    /usr/bin/tail -1)
+else
+  xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
+    /usr/bin/awk -F: '/Label: Command Line Tools for Xcode/ {print $NF}' | \
+    /usr/bin/sed 's/^ *//' | \
+    /usr/bin/tail -1)
+fi
+
+
+# Install Xcode Command Line Tools via softwareupdate.
+/usr/sbin/softwareupdate --install "$xcodeCommandLineTools"
 
 
 # Verify successful installation.
@@ -71,6 +81,8 @@ xcode_check
 if [ "$xcodeCLI" = "missing" ]; then
   /bin/echo "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
   exit 1
+else
+  /bin/echo "✅ Installed Xcode Command Line Tools."
 fi
 
 
