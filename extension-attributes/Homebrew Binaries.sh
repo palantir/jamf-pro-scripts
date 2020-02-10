@@ -4,8 +4,8 @@
 #
 #            Name:  Homebrew Binaries.sh
 #     Description:  Returns list of Homebrew-installed binaries (if Homebrew is
-#                   installed). Runs as currently -in user to avoid running in
-#                   root context.
+#                   installed). Runs as currently logged-in user to avoid
+#                   running in root context.
 #         Created:  2020-02-10
 #   Last Modified:  2020-02-10
 #         Version:  1.0
