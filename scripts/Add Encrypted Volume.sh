@@ -10,8 +10,8 @@
 #                   randomly-generated password, saves password to System
 #                   keychain.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  6.0.2
+#   Last Modified:  2020-02-25
+#         Version:  6.0.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -76,7 +76,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfProArguments[@]}"; do
     if [[ -z "$argument" ]]; then
-      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+      /bin/echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -86,7 +86,7 @@ function check_jamf_pro_arguments {
 # Exits if Mac is running macOS < 10.12 Sierra.
 function check_macos {
   if [[ $macOSVersion -lt 12 ]]; then
-    /bin/echo "This script requires macOS 10.12 Sierra or later."
+    /bin/echo "❌ ERROR: This script requires macOS 10.12 Sierra or later."
     exit 72
   fi
 }
@@ -94,7 +94,7 @@ function check_macos {
 
 # Checks for presence of $volumeName.
 function check_volume {
-  if [[ $(/usr/sbin/diskutil info "$volumeName") != "Could not find disk: $volumeName" ]]; then
+  if [[ $(/usr/sbin/diskutil info "$volumeName" 2>&1) != "Could not find disk: $volumeName" ]]; then
     /bin/echo "Volume $volumeName already present, no action required."
     exit 0
   fi
@@ -103,8 +103,8 @@ function check_volume {
 
 # Checks for presence of target startup disk.
 function check_startup_disk {
-  if [[ $(/usr/sbin/diskutil info "$startupDiskName") = "Could not find disk: $startupDiskName" ]]; then
-    /bin/echo "Volume $startupDiskName missing, unable to proceed."
+  if [[ $(/usr/sbin/diskutil info "$startupDiskName" 2>&1) = "Could not find disk: $startupDiskName" ]]; then
+    /bin/echo "❌ ERROR: Volume $startupDiskName missing, unable to proceed."
     exit 72
   fi
 }
@@ -119,7 +119,7 @@ function check_disk_space_classic {
   startupDiskSize=$(/bin/echo "$startupDiskMaximum-$volumeSize" | /usr/bin/bc)
 
   if [[ $(/bin/echo "$startupDiskMinimum < $startupDiskSize" | /usr/bin/bc) = "0" ]]; then
-    /bin/echo "Startup disk $startupDiskName has insufficient free space or is too small to shrink to $startupDiskSizeWithSuffix (needs to be at least $startupDiskMinimum$sizeSuffix). Please select a smaller target size for $volumeName or free up space on the startup disk."
+    /bin/echo "❌ ERROR: Startup disk $startupDiskName has insufficient free space or is too small to shrink to $startupDiskSizeWithSuffix (needs to be at least $startupDiskMinimum$sizeSuffix). Please select a smaller target size for $volumeName or free up space on the startup disk."
     exit 71
   fi
 }
@@ -132,7 +132,7 @@ function check_disk_space_corestorage {
   startupDiskSize=$(/bin/echo "$startupDiskMaximum-$volumeSize" | /usr/bin/bc)
 
   if [[ $(/bin/echo "$startupDiskMinimum < $startupDiskSize" | /usr/bin/bc) = "0" ]]; then
-    /bin/echo "Startup disk $startupDiskName has insufficient free space or is too small to shrink to $startupDiskSizeWithSuffix (needs to be at least $startupDiskMinimum$sizeSuffix). Please select a smaller target size for $volumeName or free up space on the startup disk."
+    /bin/echo "❌ ERROR: Startup disk $startupDiskName has insufficient free space or is too small to shrink to $startupDiskSizeWithSuffix (needs to be at least $startupDiskMinimum$sizeSuffix). Please select a smaller target size for $volumeName or free up space on the startup disk."
     exit 71
   fi
 }
@@ -235,7 +235,7 @@ elif [[ "$fileSystemPersonality" = *"Journaled HFS+"* ]]; then
   encrypt_volume
   volumeUUID=$(/usr/sbin/diskutil info "$volumeName" | /usr/bin/awk '/LV UUID/ {print $3}')
 else
-  /bin/echo "Unsupported file system: $fileSystemPersonality"
+  /bin/echo "❌ ERROR: Unsupported file system: $fileSystemPersonality"
   exit 1
 fi
 
