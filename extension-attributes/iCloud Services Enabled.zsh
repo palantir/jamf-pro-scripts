@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  iCloud Services Enabled.sh
+#            Name:  iCloud Services Enabled.zsh
 #     Description:  Returns list of enabled iCloud syncing services.
 #         Created:  2018-08-15
 #   Last Modified:  2020-01-07
