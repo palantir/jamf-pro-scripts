@@ -2,11 +2,11 @@
 
 ###
 #
-#            Name:  Santa Version.sh
+#            Name:  Google Santa Version.sh
 #     Description:  Returns Santa version (if installed).
 #         Created:  2017-12-13
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-05-06
+#         Version:  1.2.0.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -32,7 +32,7 @@
 
 
 
-santaPath="/usr/local/bin/santactl"
+googleSantaPath="/usr/local/bin/santactl"
 
 
 
@@ -41,15 +41,15 @@ santaPath="/usr/local/bin/santactl"
 
 
 # Check for presence of target binary and get version.
-if [ -e "$santaPath" ]; then
-  santaVersion=$("$santaPath" version | /usr/bin/awk '/santactl/ {print $NF}')
+if [ -e "$googleSantaPath" ]; then
+  googleSantaVersion=$("$googleSantaPath" version | /usr/bin/awk '/santactl/ {print $NF}')
 else
-  santaVersion=""
+  googleSantaVersion=""
 fi
 
 
 # Report result.
-/bin/echo "<result>$santaVersion</result>"
+/bin/echo "<result>$googleSantaVersion</result>"
 
 
 
