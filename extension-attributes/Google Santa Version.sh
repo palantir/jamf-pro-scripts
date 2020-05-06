@@ -3,7 +3,7 @@
 ###
 #
 #            Name:  Google Santa Version.sh
-#     Description:  Returns Santa version (if installed).
+#     Description:  Returns Google Santa version (if installed).
 #         Created:  2017-12-13
 #   Last Modified:  2020-05-06
 #         Version:  1.2.0.1
