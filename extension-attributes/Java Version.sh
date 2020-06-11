@@ -5,8 +5,8 @@
 #            Name:  Java Version.sh
 #     Description:  Returns Java version(s) (if installed).
 #         Created:  2017-06-15
-#   Last Modified:  2020-01-07
-#         Version:  2.1
+#   Last Modified:  2020-06-11
+#         Version:  2.1.0.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -41,11 +41,11 @@ javaVersionListTempFile="/tmp/javaVersionList.txt"
 
 
 
-# Initilaize temp file.
+# Initialize temp file.
 if [ -e "$javaVersionListTempFile" ]; then
-  rm "$javaVersionListTempFile"
+  /bin/rm "$javaVersionListTempFile"
 fi
-touch "$javaVersionListTempFile"
+/usr/bin/touch "$javaVersionListTempFile"
 
 
 
@@ -56,11 +56,6 @@ if [ -d "$javaVMPath" ]; then
     if [ -e "$javaBinPath" ]; then
       javaVersion=$("$javaBinPath" -version 2>&1 | /usr/bin/awk '/version/ {print}')
       /bin/echo "$javaVersion" >> "$javaVersionListTempFile"
-#      if [ -z "$javaVersionList" ]; then
-#        javaVersionList="$javaVersion"
-#      else
-#        javaVersionList="$javaVersionList\n$javaVersion"
-#      fi
     fi
   done
 fi
