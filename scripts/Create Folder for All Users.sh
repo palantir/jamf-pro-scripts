@@ -3,13 +3,11 @@
 ###
 #
 #            Name:  Create Folder for All Users.sh
-#     Description:  Creates specified folder for all users of a particular Mac.
-#                   Folder is placed at top level of each user's home folder,
-#                   as well as the User Template folder for all future user
-#                   accounts.
+#     Description:  Creates specified folder for all users of a particular Mac
+#                   at the top level of each user's home folder.
 #         Created:  2016-08-22
-#   Last Modified:  2020-01-07
-#         Version:  1.2.2
+#   Last Modified:  2020-06-17
+#         Version:  1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -35,8 +33,8 @@
 
 
 
-# Jamf Pro script parameter "Target Folder"
-# Folder will be created in the top level of the current user's home folder.
+# Jamf Pro script parameter: "Target Folder"
+# Folder will be created in the top level of each user's home folder.
 targetFolder="$4"
 
 
@@ -48,7 +46,7 @@ targetFolder="$4"
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
   if [ -z "$targetFolder" ]; then
-    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    /bin/echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
 }
@@ -64,19 +62,15 @@ check_jamf_pro_arguments
 
 
 # Iterate through all users with ID greater than 500.
-for this_user in $(/usr/bin/dscl . list /Users UniqueID | /usr/bin/awk '$2 > 500 {print $1}'); do
-  # For each user, create $targetFolder if one doesn't exist.
-  if [ ! -d "/Users/$this_user/$targetFolder" ]; then
-    /bin/mkdir -v "/Users/$this_user/$targetFolder"
-    /usr/sbin/chown "$this_user" "/Users/$this_user/$targetFolder"
+for targetUser in $(/usr/bin/dscl . list "/Users" UniqueID | /usr/bin/awk '$2 > 500 {print $1}'); do
+  # For each user, create $targetFolder at the top level of user's home folder
+  # (if it doesn't already exist).
+  targetUserHome=$(/usr/bin/dscl . -read "/Users/$targetUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+  if [ ! -d "$targetUserHome/$targetFolder" ]; then
+    /bin/mkdir -v "$targetUserHome/$targetFolder"
+    /usr/sbin/chown "$targetUser" "$targetUserHome/$targetFolder"
   fi
 done
-
-
-# Create $targetFolder in the user template if one doesn't exist.
-if [ ! -d "/System/Library/User Template/English.lproj/$targetFolder" ]; then
-  /bin/mkdir -v "/System/Library/User Template/English.lproj/$targetFolder"
-fi
 
 
 
