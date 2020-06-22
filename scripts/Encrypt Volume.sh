@@ -7,8 +7,8 @@
 #     Description:  Encrypts volume /Volumes/$volumeName with a randomized
 #                   password, saves password to the System keychain.
 #         Created:  2016-04-05
-#   Last Modified:  2020-01-08
-#         Version:  4.0.3
+#   Last Modified:  2020-06-22
+#         Version:  4.0.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -37,7 +37,6 @@
 # Jamf Pro script parameter: "Volume Name"
 volumeName="$4"
 # Do not change these values.
-macOSVersion=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
 volumeInfo=$(/usr/sbin/diskutil info "$volumeName")
 volumeFileSystemPersonality=$(/bin/echo "$volumeInfo" | /usr/bin/awk -F: '/File System Personality/ {print $NF}' | /usr/bin/sed 's/^ *//')
 volumePassphrase=$(LC_CTYPE=C /usr/bin/tr -dc 'A-NP-Za-km-z0-9' < "/dev/urandom" | /usr/bin/head -c 20)
@@ -63,10 +62,12 @@ function check_jamf_pro_arguments {
 
 
 
-# Exits if Mac is running macOS < 10.12 Sierra.
+# Exits if Mac is running macOS < 10.12 Sierra, or an OS other than macOS 10.
 function check_macos {
-  if [[ $macOSVersion -lt 12 ]]; then
-    /bin/echo "This script requires macOS 10.12 Sierra or later."
+  macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $1}')
+  macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
+  if [[ $macOSVersionMajor -ne 10 || $macOSVersionMinor -lt 12 ]]; then
+    /bin/echo "❌ ERROR: This script requires macOS 10 (10.12 Sierra or later) (version detected: $(/usr/bin/sw_vers -productVersion)), unable to proceed."
     exit 72
   fi
 }
