@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 ###
 #
@@ -28,6 +28,15 @@
 
 
 
+########## variable-ing ##########
+
+
+
+macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $1}')
+macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
+
+
+
 ########## function-ing ##########
 
 
@@ -45,10 +54,8 @@ function xcode_check {
 
 # Exits if Mac is not running macOS 10.
 function check_macos {
-  macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $1}')
-  macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
   if [[ $macOSVersionMajor -ne 10 ]]; then
-    /bin/echo "❌ ERROR: This script is only supported in macOS 10 (version detected: $(/usr/bin/sw_vers -productVersion)), unable to proceed."
+    echo "❌ ERROR: This script is only supported in macOS 10 (version detected: $(/usr/bin/sw_vers -productVersion)), unable to proceed."
     exit 72
   fi
 }
@@ -62,7 +69,7 @@ function check_macos {
 # Exit if Xcode Command Line Tools are already installed.
 xcode_check
 if [ "$xcodeCLI" = "installed" ]; then
-  /bin/echo "Xcode Command Line Tools already installed, no action required."
+  echo "Xcode Command Line Tools already installed, no action required."
   exit 0
 fi
 
@@ -93,10 +100,10 @@ fi
 # Verify successful installation.
 xcode_check
 if [ "$xcodeCLI" = "missing" ]; then
-  /bin/echo "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
+  echo "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
   exit 1
 else
-  /bin/echo "✅ Installed Xcode Command Line Tools."
+  echo "✅ Installed Xcode Command Line Tools."
 fi
 
 
