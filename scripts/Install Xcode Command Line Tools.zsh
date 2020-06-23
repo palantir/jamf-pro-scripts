@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Install Xcode Command Line Tools.sh
+#            Name:  Install Xcode Command Line Tools.zsh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
 #   Last Modified:  2020-06-22

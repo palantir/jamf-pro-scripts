@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Encrypt APFS Volume.sh
+#            Name:  Encrypt APFS Volume.zsh
 #     Description:  Encrypts APFS volume /Volumes/$targetVolume with a
 #                   randomized password, then saves this password to the System
 #                   keychain.

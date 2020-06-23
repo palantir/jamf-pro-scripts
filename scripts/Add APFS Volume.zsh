@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Add APFS Volume.sh
+#            Name:  Add APFS Volume.zsh
 #     Description:  Creates additional APFS volume at /Volumes/$newVolumeName
 #                   (sharing disk space with other volumes in the startup disk
 #                   container).
