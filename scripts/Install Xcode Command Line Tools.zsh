@@ -6,7 +6,7 @@
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
 #   Last Modified:  2020-06-22
-#         Version:  5.4.1
+#         Version:  5.5
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
