@@ -14,4 +14,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Shell Linter
-        uses: azohra/shell-linter@v0.2.0
+        uses: azohra/shell-linter@latest
