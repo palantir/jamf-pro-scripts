@@ -5,8 +5,8 @@
 #            Name:  SSH Access - Add User or Group.sh
 #     Description:  Adds target user or group to SSH membership at $sshGroup.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  3.2
+#   Last Modified:  2020-07-08
+#         Version:  3.2.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -53,7 +53,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfProArguments[@]}"; do
     if [[ -z "$argument" ]]; then
-      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -71,7 +71,7 @@ check_jamf_pro_arguments
 
 # Exit if Target Type is an incorrect value.
 if [[ "$targetType" != "user" ]] && [[ "$targetType" != "group" ]]; then
-  /bin/echo "❌ERROR: Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf Pro policy."
+  echo "❌ERROR: Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf Pro policy."
   exit 1
 fi
 
@@ -87,7 +87,7 @@ fi
   -a "$targetID" \
   -t "$targetType" \
   "$sshGroup"
-/bin/echo "Added $targetID to $sshGroup."
+echo "Added $targetID to $sshGroup."
 
 
 

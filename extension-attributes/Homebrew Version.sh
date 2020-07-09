@@ -6,8 +6,8 @@
 #     Description:  Returns Homebrew version (if installed). Runs as currently
 #                   logged-in user to avoid running in root context.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  2.4
+#   Last Modified:  2020-07-08
+#         Version:  2.4.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -44,14 +44,14 @@ brewPath="/usr/local/bin/brew"
 
 # Check for presence of target binary and get version.
 if [ -e "$brewPath" ]; then
-  brewCheck=$(/usr/bin/sudo -u "$loggedInUser" "$brewPath" --version 2>&1)
+  brewCheck=$(sudo -u "$loggedInUser" "$brewPath" --version 2>&1)
 else
   brewCheck=""
 fi
 
 
 # Report result.
-/bin/echo "<result>$brewCheck</result>"
+echo "<result>$brewCheck</result>"
 
 
 

@@ -6,8 +6,8 @@
 #     Description:  Returns whether Xcode Command Line Tools are installed
 #                   (either standalone or as part of Xcode.app bundle).
 #         Created:  2016-12-09
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -52,7 +52,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$xcodeCLI</result>"
+echo "<result>$xcodeCLI</result>"
 
 
 

@@ -5,8 +5,8 @@
 #            Name:  Convert Logged-In User to Standard.sh
 #     Description:  Removes admin privileges from logged-in user.
 #         Created:  2018-10-10
-#   Last Modified:  2020-01-08
-#         Version:  1.1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.2
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -43,9 +43,9 @@ loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # Remove admin privileges from $loggedInUser.
 if /usr/bin/dscl . -read "/groups/admin" GroupMembership | /usr/bin/grep -q "$loggedInUser"; then
   /usr/sbin/dseditgroup -o edit -d "$loggedInUser" admin
-  /bin/echo "Removed $loggedInUser admin privileges."
+  echo "Removed $loggedInUser admin privileges."
 else
-  /bin/echo "$loggedInUser is already a standard user, no action required."
+  echo "$loggedInUser is already a standard user, no action required."
 fi
 
 

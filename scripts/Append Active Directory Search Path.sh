@@ -5,8 +5,8 @@
 #            Name:  Append Active Directory Search Path.sh
 #     Description:  Adds domain search path.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.1.3
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -45,7 +45,7 @@ DOMAIN="$5"
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
   if [ -z "$DOMAIN" ]; then
-    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
 }

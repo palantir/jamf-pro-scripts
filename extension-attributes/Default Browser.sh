@@ -7,8 +7,8 @@
 #                   Reformats browser agent string to full name when one of a
 #                   list of common browsers.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -67,7 +67,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$browserResult</result>"
+echo "<result>$browserResult</result>"
 
 
 

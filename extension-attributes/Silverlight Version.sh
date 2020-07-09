@@ -5,8 +5,8 @@
 #            Name:  Silverlight Version.sh
 #     Description:  Returns Silverlight version (if plugin is installed).
 #         Created:  2017-01-04
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$silverlightVersion</result>"
+echo "<result>$silverlightVersion</result>"
 
 
 

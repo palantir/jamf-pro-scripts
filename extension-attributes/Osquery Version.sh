@@ -5,8 +5,8 @@
 #            Name:  Osquery Version.sh
 #     Description:  Returns Osquery version (if installed).
 #         Created:  2017-07-13
-#   Last Modified:  2020-01-07
-#         Version:  2.2
+#   Last Modified:  2020-07-08
+#         Version:  2.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$osqueryVersion</result>"
+echo "<result>$osqueryVersion</result>"
 
 
 

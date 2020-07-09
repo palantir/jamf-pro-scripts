@@ -6,8 +6,8 @@
 #     Description:  Returns whether a "SnagitRegistrationKey" file is present
 #                   in "/Users/Shared/TechSmith/Snagit/".
 #         Created:  2018-10-09
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -42,7 +42,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$licenseStatus</result>"
+echo "<result>$licenseStatus</result>"
 
 
 

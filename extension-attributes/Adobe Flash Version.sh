@@ -5,8 +5,8 @@
 #            Name:  Adobe Flash Version.sh
 #     Description:  Returns Adobe Flash version (if plugin is installed).
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.2.3
+#   Last Modified:  2020-07-08
+#         Version:  1.2.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$flashVersion</result>"
+echo "<result>$flashVersion</result>"
 
 
 

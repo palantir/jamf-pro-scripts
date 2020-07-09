@@ -5,8 +5,8 @@
 #            Name:  Hide Parallels NICs.sh
 #     Description:  Hides Parallels NICs from the system's ifconfig list.
 #         Created:  2017-03-14
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -43,9 +43,9 @@ parallelsCommandLineTool="/usr/local/bin/prlsrvctl"
 if [ -e "$parallelsCommandLineTool" ]; then
   "$parallelsCommandLineTool" net set Host-Only --connect-host-to-net off
   "$parallelsCommandLineTool" net set Shared --connect-host-to-net off
-  /bin/echo "Removed Parallels VNICs from ifconfig list."
+  echo "Removed Parallels VNICs from ifconfig list."
 else
-  /bin/echo "Parallels command line tool not found, unable to proceed."
+  echo "Parallels command line tool not found, unable to proceed."
   exit 1
 fi
 

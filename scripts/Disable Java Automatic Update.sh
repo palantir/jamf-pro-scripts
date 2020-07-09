@@ -5,8 +5,8 @@
 #            Name:  Disable Java Automatic Update.sh
 #     Description:  Disables Java's automatic update check feature.
 #         Created:  2019-04-19
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2019 Palantir Technologies, Inc.
@@ -34,7 +34,7 @@
 
 # Disable Java automatic update check.
 /usr/bin/defaults write "/Library/Preferences/com.oracle.java.Java-Updater" JavaAutoUpdateEnabled -bool false
-/bin/echo "Disabled Java automatic update check."
+echo "Disabled Java automatic update check."
 
 
 

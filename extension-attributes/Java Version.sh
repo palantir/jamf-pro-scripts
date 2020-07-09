@@ -5,8 +5,8 @@
 #            Name:  Java Version.sh
 #     Description:  Returns Java version(s) (if installed).
 #         Created:  2017-06-15
-#   Last Modified:  2020-06-11
-#         Version:  2.1.0.1
+#   Last Modified:  2020-07-08
+#         Version:  2.1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -55,14 +55,14 @@ if [ -d "$javaVMPath" ]; then
     javaBinPath="$javaInstall/Contents/Home/bin/java"
     if [ -e "$javaBinPath" ]; then
       javaVersion=$("$javaBinPath" -version 2>&1 | /usr/bin/awk '/version/ {print}')
-      /bin/echo "$javaVersion" >> "$javaVersionListTempFile"
+      echo "$javaVersion" >> "$javaVersionListTempFile"
     fi
   done
 fi
 
 
 # Report result.
-/bin/echo "<result>$(/bin/cat $javaVersionListTempFile)</result>"
+echo "<result>$(/bin/cat $javaVersionListTempFile)</result>"
 
 
 

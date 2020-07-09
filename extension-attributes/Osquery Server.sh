@@ -5,8 +5,8 @@
 #            Name:  Osquery Server.sh
 #     Description:  Returns tls_hostname attribute from osquery.flags (if present).
 #         Created:  2017-09-07
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$osqueryServer</result>"
+echo "<result>$osqueryServer</result>"
 
 
 

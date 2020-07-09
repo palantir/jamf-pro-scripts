@@ -5,8 +5,8 @@
 #            Name:  Hostname.sh
 #     Description:  Returns the hostname of the computer.
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,7 +33,7 @@
 
 
 # Report hostname.
-/bin/echo "<result>$(/bin/hostname 2>&1)</result>"
+echo "<result>$(/bin/hostname 2>&1)</result>"
 
 
 

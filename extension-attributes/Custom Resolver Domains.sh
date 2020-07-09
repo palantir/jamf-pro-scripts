@@ -5,8 +5,8 @@
 #            Name:  Custom Resolver Domains.sh
 #     Description:  Returns list of custom domains configured in /etc/resolver/.
 #         Created:  2017-10-09
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$resolverDomains</result>"
+echo "<result>$resolverDomains</result>"
 
 
 

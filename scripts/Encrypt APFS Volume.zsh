@@ -7,8 +7,8 @@
 #                   randomized password, then saves this password to the System
 #                   keychain.
 #         Created:  2016-04-05
-#   Last Modified:  2020-06-22
-#         Version:  5.0
+#   Last Modified:  2020-07-08
+#         Version:  5.0.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -61,7 +61,7 @@ function check_volume {
   if /usr/sbin/diskutil list | /usr/bin/grep -q "$targetVolume"; then
     volumeIdentifier=$(/usr/sbin/diskutil list | /usr/bin/grep "$targetVolume" | /usr/bin/awk '{print $NF}')
   else
-    /bin/echo "❌ ERROR: Volume $targetVolume missing, unable to proceed."
+    echo "❌ ERROR: Volume $targetVolume missing, unable to proceed."
     exit 72
   fi
 }

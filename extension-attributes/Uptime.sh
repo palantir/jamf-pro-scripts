@@ -5,8 +5,8 @@
 #            Name:  Uptime.sh
 #     Description:  Returns the system uptime in seconds.
 #         Created:  2017-01-04
-#   Last Modified:  2020-01-07
-#         Version:  2.1
+#   Last Modified:  2020-07-08
+#         Version:  2.1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -46,7 +46,7 @@ uptime=$(( currentDate - bootDate ))
 
 
 # Report result.
-/bin/echo "<result>$uptime</result>"
+echo "<result>$uptime</result>"
 
 
 

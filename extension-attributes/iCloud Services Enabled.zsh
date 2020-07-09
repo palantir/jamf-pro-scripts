@@ -5,8 +5,8 @@
 #            Name:  iCloud Services Enabled.zsh
 #     Description:  Returns list of enabled iCloud syncing services.
 #         Created:  2018-08-15
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -52,7 +52,7 @@ if [[ -e "$icloudPlist" ]]; then
       if [[ "$icloudServices" = "" ]]; then
         icloudServices="$serviceName"
       else
-        icloudServices=$(/bin/echo "$icloudServices"; "/bin/echo" "$serviceName")
+        icloudServices=$(echo "$icloudServices"; "echo" "$serviceName")
       fi
     fi
   done
@@ -62,7 +62,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$icloudServices</result>"
+echo "<result>$icloudServices</result>"
 
 
 

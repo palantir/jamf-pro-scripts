@@ -12,8 +12,8 @@
 #                   Based on uninstaller-template:
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2020-01-07
-#         Version:  1.3.1pal1
+#   Last Modified:  2020-07-08
+#         Version:  1.3.2pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -105,12 +105,12 @@ function run_vendor_uninstallers {
 # Quit target processes and remove associated login items.
 function quit_processes {
   for process in "${processNames[@]}"; do
-    if /bin/echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
+    if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
       /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"$process\" to quit"
       /usr/bin/osascript -e "tell application \"System Events\" to delete every login item whose name is \"$process\""
-      /bin/echo "Quit $process, removed from login items if present."
+      echo "Quit $process, removed from login items if present."
     else
-      /bin/echo "$process not running."
+      echo "$process not running."
     fi
   done
 }
@@ -127,10 +127,10 @@ function delete_files {
         justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
         if [[ "$launchAgentCheck" =~ $justThePlist ]]; then
           /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
-          /bin/echo "Unloaded LaunchAgent at $targetFile."
+          echo "Unloaded LaunchAgent at $targetFile."
         elif [[ "$launchDaemonCheck" =~ $justThePlist ]]; then
           /bin/launchctl unload "$targetFile"
-          /bin/echo "Unloaded LaunchDaemon at $targetFile."
+          echo "Unloaded LaunchDaemon at $targetFile."
         fi
       fi
       # disable kexts, delete all other file types
@@ -138,10 +138,10 @@ function delete_files {
         appKextKillPath="/tmp/$scriptName"
         /bin/mkdir -p "$appKextKillPath"
         /bin/mv "$targetFile" "$appKextKillPath"
-        /bin/echo "Moved $targetFile to $appKextKillPath. File will be deleted on subsequent restart."
+        echo "Moved $targetFile to $appKextKillPath. File will be deleted on subsequent restart."
       else
         /bin/rm -rf "$targetFile"
-        /bin/echo "Removed $targetFile."
+        echo "Removed $targetFile."
       fi
     fi
   done
@@ -156,19 +156,19 @@ function delete_files {
 # Each function will only execute if the respective source array is not empty
 # or undefined.
 if [[ -n "${vendorUninstallerCommands[*]}" ]]; then
-  /bin/echo "Running vendor uninstallers..."
+  echo "Running vendor uninstallers..."
   run_vendor_uninstallers
 fi
 
 
 if [[ -n "${processNames[*]}" ]]; then
-  /bin/echo "Quitting processes (if running)..."
+  echo "Quitting processes (if running)..."
   quit_processes
 fi
 
 
 if [[ -n "${resourceFiles[*]}" ]]; then
-  /bin/echo "Removing files (if present)..."
+  echo "Removing files (if present)..."
   delete_files
 fi
 

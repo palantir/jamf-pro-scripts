@@ -5,8 +5,8 @@
 #            Name:  Convert Admin Account to Standard.sh
 #     Description:  Removes admin privileges from target account.
 #         Created:  2017-08-17
-#   Last Modified:  2020-01-08
-#         Version:  1.2.3
+#   Last Modified:  2020-07-08
+#         Version:  1.2.4
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -44,7 +44,7 @@ targetAccount="$4"
 # Exits if any required Jamf Pro arguments are undefined.
 function check_jamf_pro_arguments {
   if [ -z "$targetAccount" ]; then
-    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
 }
@@ -62,9 +62,9 @@ check_jamf_pro_arguments
 # Remove admin privileges from $targetAccount.
 if /usr/bin/dscl . -read "/groups/admin" GroupMembership | /usr/bin/grep -q "$targetAccount"; then
   /usr/sbin/dseditgroup -o edit -d "$targetAccount" admin
-  /bin/echo "Removed $targetAccount admin privileges."
+  echo "Removed $targetAccount admin privileges."
 else
-  /bin/echo "$targetAccount is already a standard user, no action required."
+  echo "$targetAccount is already a standard user, no action required."
 fi
 
 

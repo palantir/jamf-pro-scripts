@@ -6,8 +6,8 @@
 #     Description:  Removes target user or group from SSH membership at
 #                   $sshGroup.
 #         Created:  2017-09-25
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -54,7 +54,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfProArguments[@]}"; do
     if [[ -z "$argument" ]]; then
-      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -72,7 +72,7 @@ check_jamf_pro_arguments
 
 # Exit if Target Type is an incorrect value.
 if [[ "$targetType" != "user" ]] && [[ "$targetType" != "group" ]]; then
-  /bin/echo "❌ ERROR: Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf policy."
+  echo "❌ ERROR: Target Type $targetType is unknown value, unable to proceed. Please check Target Type parameter in Jamf policy."
   exit 1
 fi
 
@@ -88,7 +88,7 @@ fi
   -d "$targetID" \
   -t "$targetType" \
   "$sshGroup"
-/bin/echo "Removed $targetID from $sshGroup."
+echo "Removed $targetID from $sshGroup."
 
 
 

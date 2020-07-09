@@ -7,8 +7,8 @@
 #     Description:  For each network interface with a proxy bypass domain entry
 #                   of "*.local", changes to the target domain entry.
 #         Created:  2017-05-23
-#   Last Modified:  2020-01-07
-#         Version:  1.3.1
+#   Last Modified:  2020-07-08
+#         Version:  1.3.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -52,7 +52,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfArguments[@]}"; do
     if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf argument, unable to proceed."
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -73,13 +73,13 @@ check_jamf_pro_arguments
 while IFS= read -r interface; do
   bypassDomainsCurrent=$(/usr/sbin/networksetup -getproxybypassdomains "$interface")
   if [[ "$bypassDomainsCurrent" = *"$targetDomain"* ]]; then
-    /bin/echo "$interface already inclues $targetDomain as proxy bypass domain, no action required."
+    echo "$interface already inclues $targetDomain as proxy bypass domain, no action required."
   elif [[ "$bypassDomainsCurrent" = *"There aren't any bypass domains set on"* ]]; then
-    /bin/echo "No proxy bypass domains defined for $interface, no action required."
+    echo "No proxy bypass domains defined for $interface, no action required."
   else
-    bypassDomainsUpdate=$(/bin/echo "$bypassDomainsCurrent" | /usr/bin/sed "s/*.local/$targetDomain/" | /usr/bin/tr "\n" " ")
+    bypassDomainsUpdate=$(echo "$bypassDomainsCurrent" | /usr/bin/sed "s/*.local/$targetDomain/" | /usr/bin/tr "\n" " ")
     /usr/sbin/networksetup -setproxybypassdomains "$interface" $bypassDomainsUpdate
-    /bin/echo "Updated proxy bypass domains for $interface: $bypassDomainsUpdate"
+    echo "Updated proxy bypass domains for $interface: $bypassDomainsUpdate"
   fi
 done <<< "$networkInterfaces"
 

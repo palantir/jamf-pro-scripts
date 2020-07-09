@@ -6,8 +6,8 @@
 #     Description:  Corrects permissions on the plist controlling Location
 #                   Services settings.
 #         Created:  2017-08-04
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -47,12 +47,12 @@ locationdPermissionsCheck=$(/bin/ls -l $locationdByHost | \
 
 
 if [ -z "$locationdPermissionsCheck" ]; then
-  /bin/echo "All locationd settings files owned by $locationdUser, no action required."
+  echo "All locationd settings files owned by $locationdUser, no action required."
 else
-  /bin/echo "Incorrect permissions found in locationd settings files."
-  /bin/echo "$locationdPermissionsCheck"
+  echo "Incorrect permissions found in locationd settings files."
+  echo "$locationdPermissionsCheck"
   /usr/sbin/chown -R "$locationdUser":"$locationdUser" "$locationdPath"
-  /bin/echo "Repaired permissions, all settings files now owned by $locationdUser."
+  echo "Repaired permissions, all settings files now owned by $locationdUser."
 fi
 
 

@@ -5,8 +5,8 @@
 #            Name:  OmniFocus Serial Number.sh
 #     Description:  Returns OmniFocus serial numbers (if license file exists).
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -54,7 +54,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$omniLicense</result>"
+echo "<result>$omniLicense</result>"
 
 
 

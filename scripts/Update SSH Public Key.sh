@@ -6,8 +6,8 @@
 #     Description:  Adds new SSH public key to specified user account for
 #                   remote access, replacing any existing keys.
 #         Created:  2017-02-14
-#   Last Modified:  2020-01-07
-#         Version:  1.2.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -55,7 +55,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfProArguments[@]}"; do
     if [[ "$argument" = "" ]]; then
-      "/bin/echo" "Undefined Jamf Pro argument, unable to proceed."
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -65,7 +65,7 @@ function check_jamf_pro_arguments {
 # Exits if public SSH key does not exist.
 function public_ssh_key_check {
   if [ ! -e "$publicSSHKeyPath" ]; then
-    /bin/echo "Public SSH Key not found at specified path, unable to proceed. Please check Public SSH Key Path parameter in Jamf policy."
+    echo "❌ ERROR: Public SSH Key not found at specified path, unable to proceed. Please check Public SSH Key Path parameter in Jamf Pro policy."
     exit 74
   fi
 }

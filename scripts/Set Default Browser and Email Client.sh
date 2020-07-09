@@ -5,8 +5,8 @@
 #            Name:  Set Default Browser and Email Client.sh
 #     Description:  Sets default browser and email client for currently logged-in user.
 #         Created:  2017-09-06
-#   Last Modified:  2020-01-07
-#         Version:  1.4.2
+#   Last Modified:  2020-07-08
+#         Version:  1.4.3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -73,7 +73,7 @@ function check_jamf_pro_arguments {
   )
   for argument in "${jamfProArguments[@]}"; do
     if [[ -z "$argument" ]]; then
-      /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
   done
@@ -92,38 +92,38 @@ check_jamf_pro_arguments
 # Clear out LSHandlers array data from $launchServicesPlist, or create new plist if file does not exist.
 if [[ -e "$launchServicesPlist" ]]; then
   "$plistbuddyPath" -c "Delete :LSHandlers" "$launchServicesPlist"
-  /bin/echo "Reset LSHandlers array from $launchServicesPlist."
+  echo "Reset LSHandlers array from $launchServicesPlist."
 else
   /bin/mkdir -p "$launchServicesPlistFolder"
   "$plistbuddyPath" -c "Save" "$launchServicesPlist"
-  /bin/echo "Created $launchServicesPlist."
+  echo "Created $launchServicesPlist."
 fi
 
 
 # Add new LSHandlers array.
 "$plistbuddyPath" -c "Add :LSHandlers array" "$launchServicesPlist"
-/bin/echo "Initialized LSHandlers array."
+echo "Initialized LSHandlers array."
 
 
 # Set handler for each URL scheme and content type to specified browser and email client.
 for plistbuddyCommand in "${plistbuddyPreferences[@]}"; do
   "$plistbuddyPath" -c "$plistbuddyCommand" "$launchServicesPlist"
   if [[ "$plistbuddyCommand" = *"$browserAgentString"* ]] || [[ "$plistbuddyCommand" = *"$emailAgentString"* ]]; then
-    arrayEntry=$(/bin/echo "$plistbuddyCommand" | /usr/bin/awk -F: '{print $2 ":" $3 ":" $4}' | /usr/bin/sed 's/ .*//')
-    prefLabel=$(/bin/echo "$plistbuddyCommand" | /usr/bin/awk '{print $4}')
-    /bin/echo "Set $arrayEntry to $prefLabel."
+    arrayEntry=$(echo "$plistbuddyCommand" | /usr/bin/awk -F: '{print $2 ":" $3 ":" $4}' | /usr/bin/sed 's/ .*//')
+    prefLabel=$(echo "$plistbuddyCommand" | /usr/bin/awk '{print $4}')
+    echo "Set $arrayEntry to $prefLabel."
   fi
 done
 
 
 # Fix permissions on $launchServicesPlistFolder.
 /usr/sbin/chown -R "$loggedInUser" "$launchServicesPlistFolder"
-/bin/echo "Fixed permissions on $launchServicesPlistFolder."
+echo "Fixed permissions on $launchServicesPlistFolder."
 
 
 # Reset Launch Services database.
 "$lsregisterPath" -kill -r -domain local -domain system -domain user
-/bin/echo "Reset Launch Services database. A restart may also be required for these new default client changes to take effect."
+echo "Reset Launch Services database. A restart may also be required for these new default client changes to take effect."
 
 
 

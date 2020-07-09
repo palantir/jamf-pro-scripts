@@ -5,8 +5,8 @@
 #            Name:  Parallels License Status.sh
 #     Description:  Returns Parallels license info (if Parallels is installed).
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.4
+#   Last Modified:  2020-07-08
+#         Version:  1.4.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -53,7 +53,7 @@ else
 fi
 
 
-/bin/echo "<result>$licenseStatus</result>"
+echo "<result>$licenseStatus</result>"
 
 
 

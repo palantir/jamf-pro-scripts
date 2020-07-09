@@ -6,8 +6,8 @@
 #     Description:  Returns Active Directory search path (if computer is bound
 #                   to domain).
 #         Created:  2016-06-06
-#   Last Modified:  2020-01-07
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -42,7 +42,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$adSearchPath</result>"
+echo "<result>$adSearchPath</result>"
 
 
 

@@ -5,8 +5,8 @@
 #            Name:  Convert Logged-In User to Admin.sh
 #     Description:  Grants admin privileges to logged-in user.
 #         Created:  2018-10-08
-#   Last Modified:  2020-01-08
-#         Version:  1.1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.2
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -42,10 +42,10 @@ loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 
 # Grant admin privileges to $loggedInUser.
 if /usr/bin/dscl . -read "/groups/admin" GroupMembership | /usr/bin/grep -q "$loggedInUser"; then
-  /bin/echo "$loggedInUser already has admin privileges, no action required."
+  echo "$loggedInUser already has admin privileges, no action required."
 else
   /usr/bin/dscl . -append "/groups/admin" GroupMembership "$loggedInUser"
-  /bin/echo "Granted admin privileges to $loggedInUser."
+  echo "Granted admin privileges to $loggedInUser."
 fi
 
 

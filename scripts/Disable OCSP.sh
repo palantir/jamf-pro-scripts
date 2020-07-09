@@ -5,8 +5,8 @@
 #            Name:  Disable OCSP.sh
 #     Description:  Disables OCSP secure authentication.
 #         Created:  2017-09-06
-#   Last Modified:  2020-01-07
-#         Version:  1.0.3
+#   Last Modified:  2020-07-08
+#         Version:  1.0.4
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -41,7 +41,7 @@ loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 
 
 # Disable OCSP for logged-in user.
-/usr/bin/sudo -u "$loggedInUser" /usr/bin/defaults write "com.apple.security.revocation" OCSPStyle -string "None"
+sudo -u "$loggedInUser" /usr/bin/defaults write "com.apple.security.revocation" OCSPStyle -string "None"
 
 
 

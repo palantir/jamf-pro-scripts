@@ -6,8 +6,8 @@
 #     Description:  Resets all Safari user data to defaults for the currently
 #                   logged-in user.
 #         Created:  2016-08-18
-#   Last Modified:  2020-01-07
-#         Version:  2.1.3
+#   Last Modified:  2020-07-08
+#         Version:  2.1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -62,7 +62,7 @@ preferencesToReset=(
 
 
 # Delete Safari preference files.
-/bin/echo "Deleting Safari preference files to reset to system default..."
+echo "Deleting Safari preference files to reset to system default..."
 for safariPref in "${preferencesToReset[@]}"; do
   if [ -e "$safariPref" ]; then
     /bin/rm -rv "$safariPref"

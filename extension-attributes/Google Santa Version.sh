@@ -5,8 +5,8 @@
 #            Name:  Google Santa Version.sh
 #     Description:  Returns Google Santa version (if installed).
 #         Created:  2017-12-13
-#   Last Modified:  2020-05-06
-#         Version:  1.2.0.1
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -49,7 +49,7 @@ fi
 
 
 # Report result.
-/bin/echo "<result>$googleSantaVersion</result>"
+echo "<result>$googleSantaVersion</result>"
 
 
 

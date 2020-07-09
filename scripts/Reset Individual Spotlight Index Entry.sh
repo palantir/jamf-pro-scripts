@@ -5,8 +5,8 @@
 #            Name:  Reset Individual Spotlight Index Entry.sh
 #      Description: Resets Spotlight index entry for target path.
 #          Created: 2017-06-29
-#    Last Modified: 2020-01-07
-#          Version: 1.2
+#    Last Modified: 2020-07-08
+#          Version: 1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -46,7 +46,7 @@ spotlightPlist="/.Spotlight-V100/VolumeConfiguration.plist"
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
   if [ -z "$resetPath" ]; then
-    /bin/echo "Undefined Jamf Pro argument, unable to proceed."
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
 }
@@ -70,7 +70,7 @@ check_jamf_pro_arguments
 
 # Verify $resetPath exists on the system.
 if [ ! -e "$resetPath" ]; then
-  /bin/echo "Target path $resetPath does not exist, unable to proceed. Please check Target Path parameter in Jamf Pro policy."
+  echo "Target path $resetPath does not exist, unable to proceed. Please check Target Path parameter in Jamf Pro policy."
   exit 74
 fi
 
@@ -78,13 +78,13 @@ fi
 # Add target path to Spotlight exclusions.
 /usr/bin/defaults write "$spotlightPlist" Exclusions -array-add "$resetPath"
 metadata_reset
-/bin/echo "Added $resetPath to Spotlight exclusions."
+echo "Added $resetPath to Spotlight exclusions."
 
 
 # Remove target path from Spotlight exclusions.
 /usr/bin/defaults delete "$spotlightPlist" Exclusions
 metadata_reset
-/bin/echo "Removed $resetPath from Spotlight exclusions. Target path should appear in Spotlight search results shortly."
+echo "Removed $resetPath from Spotlight exclusions. Target path should appear in Spotlight search results shortly."
 
 
 

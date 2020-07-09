@@ -5,8 +5,8 @@
 #            Name:  Enable Guest Account.sh
 #     Description:  Enables guest account.
 #         Created:  2017-05-18
-#   Last Modified:  2020-01-07
-#         Version:  1.1
+#   Last Modified:  2020-07-08
+#         Version:  1.1.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -34,7 +34,7 @@
 
 # Enable guest account.
 /usr/bin/defaults write "/Library/Preferences/com.apple.loginwindow" GuestEnabled -bool TRUE
-/bin/echo "Enabled guest account."
+echo "Enabled guest account."
 
 
 

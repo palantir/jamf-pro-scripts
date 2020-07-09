@@ -6,8 +6,8 @@
 #     Description:  Reports Computer Account name for Active Directory record
 #                   (if computer is bound to domain).
 #         Created:  2016-08-22
-#   Last Modified:  2020-01-07
-#         Version:  2.1
+#   Last Modified:  2020-07-08
+#         Version:  2.1.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -42,7 +42,7 @@ adComputerAccountName=$(/usr/sbin/dsconfigad -show | /usr/bin/awk -F[=$] '/Compu
 
 
 # Report result.
-/bin/echo "<result>$adComputerAccountName</result>"
+echo "<result>$adComputerAccountName</result>"
 
 
 

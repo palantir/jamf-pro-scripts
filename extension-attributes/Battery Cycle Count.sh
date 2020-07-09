@@ -6,8 +6,8 @@
 #     Description:  Returns cycle count of battery for notebooks
 #                   (returns 0 for desktops).
 #         Created:  2017-05-10
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -42,15 +42,15 @@ powerReport=$(/usr/sbin/system_profiler SPPowerDataType)
 
 
 # Count cycles (if computer has a battery).
-if /bin/echo "$powerReport" | grep -q "Battery Information"; then
-  cycleCount=$(/bin/echo "$powerReport" | /usr/bin/awk '/Cycle Count/ {print $NF}' | /usr/bin/bc)
+if cho "$powerReport" | /usr/bin/grep -q "Battery Information"; then
+  cycleCount=$(echo "$powerReport" | /usr/bin/awk '/Cycle Count/ {print $NF}' | /usr/bin/bc)
 else
   cycleCount=0
 fi
 
 
 # Report result.
-/bin/echo "<result>$cycleCount</result>"
+echo "<result>$cycleCount</result>"
 
 
 

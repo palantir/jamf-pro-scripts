@@ -6,8 +6,8 @@
 #     Description:  Creates specified folder for all users of a particular Mac
 #                   at the top level of each user's home folder.
 #         Created:  2016-08-22
-#   Last Modified:  2020-06-17
-#         Version:  1.3
+#   Last Modified:  2020-07-08
+#         Version:  1.3.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -46,7 +46,7 @@ targetFolder="$4"
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
   if [ -z "$targetFolder" ]; then
-    /bin/echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
 }

@@ -5,8 +5,8 @@
 #            Name:  Vagrant Version.sh
 #     Description:  Returns Vagrant version (if installed).
 #         Created:  2017-06-16
-#   Last Modified:  2020-01-07
-#         Version:  1.2
+#   Last Modified:  2020-07-08
+#         Version:  1.2.1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -42,14 +42,14 @@ vagrantPath="/opt/vagrant/bin/vagrant"
 
 # Check for presence of target binary and get version.
 if [ -e "$vagrantPath" ]; then
-  vagrantVersion=$("$vagrantPath" version 2>/dev/null | /usr/bin/awk '/Installed Version/ {print $3}')
+  vagrantVersion=$("$vagrantPath" version 2>"/dev/null" | /usr/bin/awk '/Installed Version/ {print $3}')
 else
   vagrantVersion=""
 fi
 
 
 # Report result.
-/bin/echo "<result>$vagrantVersion</result>"
+echo "<result>$vagrantVersion</result>"
 
 
 
