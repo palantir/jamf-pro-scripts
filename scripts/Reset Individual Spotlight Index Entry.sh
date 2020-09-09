@@ -5,8 +5,8 @@
 #            Name:  Reset Individual Spotlight Index Entry.sh
 #      Description: Resets Spotlight index entry for target path.
 #          Created: 2017-06-29
-#    Last Modified: 2020-07-08
-#          Version: 1.2.1
+#    Last Modified: 2020-09-09
+#          Version: 1.2.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -32,10 +32,12 @@
 
 
 
-# Jamf script parameter "Target Path"
+# Jamf Pro script parameter: "Target Path"
 # Use full path to target file in the variable.
 resetPath="$4"
 spotlightPlist="/.Spotlight-V100/VolumeConfiguration.plist"
+macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F . '{print $1}')
+macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F . '{print $2}')
 
 
 
@@ -43,12 +45,20 @@ spotlightPlist="/.Spotlight-V100/VolumeConfiguration.plist"
 
 
 
-# Exits if any required Jamf Pro arguments are undefined.
+# Exits with error if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
   if [ -z "$resetPath" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
+}
+
+
+# Exits with error if running an unsupported version of macOS.
+check_macos_version () {
+  if [ "$macOSVersionMajor" -gt 10 ] || [ "$macOSVersionMinor" -gt 14 ]; then
+    /bin/echo "❌ ERROR: macOS version ($(/usr/bin/sw_vers -productVersion)) unrecognized or incompatible, unable to proceed."
+    exit 1
 }
 
 
@@ -64,8 +74,9 @@ metadata_reset () {
 
 
 
-# Exit if any required Jamf Pro arguments are undefined.
+# Verify script prerequisites.
 check_jamf_pro_arguments
+check_macos_version
 
 
 # Verify $resetPath exists on the system.
