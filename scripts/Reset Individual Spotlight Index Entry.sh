@@ -59,6 +59,7 @@ check_macos_version () {
   if [ "$macOSVersionMajor" -gt 10 ] || [ "$macOSVersionMinor" -gt 14 ]; then
     /bin/echo "❌ ERROR: macOS version ($(/usr/bin/sw_vers -productVersion)) unrecognized or incompatible, unable to proceed."
     exit 1
+  fi
 }
 
 
