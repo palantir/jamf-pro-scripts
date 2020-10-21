@@ -13,8 +13,8 @@
 #                   extensions, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2020-07-21
-#         Version:  1.3.3
+#   Last Modified:  2020-10-21
+#         Version:  1.3.4
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -97,7 +97,7 @@ resourceFiles=(
 # or if the uninstaller resources are not Bash scripts.
 function run_vendor_uninstaller_scripts {
   for vendorUninstaller in "${vendorUninstallerBashScripts[@]}"; do
-    bash "$vendorUninstaller"
+    bash "${vendorUninstaller}"
   done
 }
 
