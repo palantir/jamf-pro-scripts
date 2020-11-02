@@ -7,8 +7,8 @@
 #                   installed). Runs as currently logged-in user to avoid
 #                   running in root context.
 #         Created:  2020-02-10
-#   Last Modified:  2020-07-08
-#         Version:  1.0.1
+#   Last Modified:  2020-11-02
+#         Version:  1.0.2
 #
 #
 # Copyright 2020 Palantir Technologies, Inc.
@@ -45,7 +45,7 @@ brewPath="/usr/local/bin/brew"
 
 # Check for presence of Homebrew and get list of installed binaries.
 if [ -e "$brewPath" ]; then
-  brewBinaryList=$(sudo -u "$loggedInUser" "$brewPath" list 2>&1)
+  brewBinaryList=$(sudo -u "$loggedInUser" "$brewPath" list --formula 2>&1)
 else
   brewBinaryList=""
 fi
