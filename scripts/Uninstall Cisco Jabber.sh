@@ -12,8 +12,8 @@
 #                   Based on uninstaller-template:
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2020-07-08
-#         Version:  1.3.2pal1
+#   Last Modified:  2021-01-04
+#         Version:  1.3.5pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -52,17 +52,22 @@ launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
-# UNINSTALLER COMMANDS (update or comment out arrays as needed):
-# A list of full commands to execute vendor-provided uninstallation workflows.
-# Syntax will differ depending on how the uninstall script functions. In the
-# below examples, the vendor uninstallers are shell scripts executed without
-# arguments, but some vendors may use their own command-line tools, custom
-# flags, or other workflows to accomplish this task (that's why this script
-# exists!), so make any necessary changes to the below commands.
-# If the vendor did not provide an uninstaller, comment this array out.
-vendorUninstallerCommands=(
-#  "sh /path/to/vendor_uninstaller_command1.sh"
-#  "sh /path/to/vendor_uninstaller_command2.sh"
+# UNINSTALLER BASH SCRIPTS:
+# A list of file paths for vendor-provided uninstallation Bash scripts.
+# Note that vendor uninstaller workflows may differ greatly. Some vendors may
+# use their own command-line tools, custom flags, or other workflows to
+# accomplish this task (that's why this script exists!), so make any necessary
+# changes to the below commands if the uninstall workflows are not Bash
+# executable files.
+#
+# This may not work as expected if you reference nonexistent scripts or
+# binaries, or if the uninstaller resources are not executable via Bash.
+#
+# If the vendor did not provide an uninstaller workflow, comment these array
+# values out.
+vendorUninstallerBashScripts=(
+#  "/path/to/vendor_uninstaller_command1.sh"
+#  "/path/to/vendor_uninstaller_command2.sh"
 )
 
 
@@ -70,15 +75,17 @@ vendorUninstallerCommands=(
 # A list of application processes to target for quit and login item removal.
 # Names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app").
-# If no processes need to be quit, comment this array out.
+#
+# If no processes need to be quit, comment these array values out.
 processNames=(
   "Cisco Jabber"
 )
 
 
 # FILE PATHS:
-# A list of full file paths to target for launchd unload and deletion.
-# If no files need to be manually deleted, comment this array out.
+# A list of full file paths to target for launchd unload and removal.
+#
+# If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
   "/Applications/Cisco Jabber.app"
   "/Library/Cisco/Jabber"
@@ -93,11 +100,10 @@ resourceFiles=(
 
 
 
-# Run vendor uninstaller commands.
-# This will fail if a command references nonexistent scripts or binaries.
-function run_vendor_uninstallers {
-  for vendorUninstaller in "${vendorUninstallerCommands[@]}"; do
-    $vendorUninstaller
+# Run vendor uninstaller Bash scripts.
+function run_vendor_uninstaller_scripts {
+  for vendorUninstaller in "${vendorUninstallerBashScripts[@]}"; do
+    bash "${vendorUninstaller}"
   done
 }
 
@@ -119,11 +125,11 @@ function quit_processes {
 # Remove all remaining resource files.
 function delete_files {
   for targetFile in "${resourceFiles[@]}"; do
-    # if file exists
+    # Check if file exists.
     if [[ -e "$targetFile" ]]; then
-      # if file is a plist
+      # Check if file is a plist.
       if [[ "$targetFile" == *".plist" ]]; then
-        # if plist is loaded as LaunchAgent or LaunchDaemon, unload it
+        # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
         justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
         if [[ "$launchAgentCheck" =~ $justThePlist ]]; then
           /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
@@ -133,16 +139,16 @@ function delete_files {
           echo "Unloaded LaunchDaemon at $targetFile."
         fi
       fi
-      # disable kexts, delete all other file types
-      if [[ "$targetFile" == *".kext" ]]; then
-        appKextKillPath="/tmp/$scriptName"
-        /bin/mkdir -p "$appKextKillPath"
-        /bin/mv "$targetFile" "$appKextKillPath"
-        echo "Moved $targetFile to $appKextKillPath. File will be deleted on subsequent restart."
-      else
-        /bin/rm -rf "$targetFile"
-        echo "Removed $targetFile."
+      # Remove system immutable flag if present.
+      if [[ $(/bin/ls -ldO "$targetFile" | /usr/bin/awk '{print $5}') =~ schg ]]; then
+        /usr/bin/chflags -R noschg "$targetFile"
+        /bin/echo "Removed system immutable flag for $targetFile."
       fi
+      # Move all files to /tmp/$scriptName.
+      tmpKillPath="/tmp/$scriptName"
+      /bin/mkdir -p "$tmpKillPath"
+      /bin/mv "$targetFile" "$tmpKillPath"
+      echo "Moved $targetFile to $tmpKillPath. File will be deleted on subsequent restart."
     fi
   done
 }
@@ -155,9 +161,9 @@ function delete_files {
 
 # Each function will only execute if the respective source array is not empty
 # or undefined.
-if [[ -n "${vendorUninstallerCommands[*]}" ]]; then
-  echo "Running vendor uninstallers..."
-  run_vendor_uninstallers
+if [[ -n "${vendorUninstallerBashScripts[*]}" ]]; then
+  echo "Running vendor uninstaller Bash scripts..."
+  run_vendor_uninstaller_scripts
 fi
 
 
