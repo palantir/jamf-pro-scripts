@@ -13,8 +13,8 @@
 #                   extensions, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2020-10-21
-#         Version:  1.3.4
+#   Last Modified:  2021-01-04
+#         Version:  1.3.5
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -53,14 +53,19 @@ launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
-# UNINSTALLER BASH SCRIPTS (update or comment out arrays as needed):
+# UNINSTALLER BASH SCRIPTS:
 # A list of file paths for vendor-provided uninstallation Bash scripts.
-# Note that vendor uninstaller workflows will differ from case to case. Some
-# vendors may use their own command-line tools, custom flags, or other workflows
-# to accomplish this task (that's why this script exists!), so make any
-# necessary changes to the below commands uf the uninstall workflows are not
-# Bash executable files.
-# If the vendor did not provide an uninstaller workflow, comment this array out.
+# Note that vendor uninstaller workflows may differ greatly. Some vendors may
+# use their own command-line tools, custom flags, or other workflows to
+# accomplish this task (that's why this script exists!), so make any necessary
+# changes to the below commands if the uninstall workflows are not Bash
+# executable files.
+#
+# This may not work as expected if you reference nonexistent scripts or
+# binaries, or if the uninstaller resources are not executable via Bash.
+#
+# If the vendor did not provide an uninstaller workflow, comment these array
+# values out.
 vendorUninstallerBashScripts=(
   "/path/to/vendor_uninstaller_command1.sh"
   "/path/to/vendor_uninstaller_command2.sh"
@@ -71,7 +76,8 @@ vendorUninstallerBashScripts=(
 # A list of application processes to target for quit and login item removal.
 # Names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app").
-# If no processes need to be quit, comment this array out.
+#
+# If no processes need to be quit, comment these array values out.
 processNames=(
   "Process Name 1"
   "Process Name 2"
@@ -79,8 +85,9 @@ processNames=(
 
 
 # FILE PATHS:
-# A list of full file paths to target for launchd unload and deletion.
-# If no files need to be manually deleted, comment this array out.
+# A list of full file paths to target for launchd unload and removal.
+#
+# If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
   "/path/to/file1"
   "/path/to/file2"
@@ -93,8 +100,6 @@ resourceFiles=(
 
 
 # Run vendor uninstaller Bash scripts.
-# This will fail if a command references nonexistent scripts or binaries,
-# or if the uninstaller resources are not Bash scripts.
 function run_vendor_uninstaller_scripts {
   for vendorUninstaller in "${vendorUninstallerBashScripts[@]}"; do
     bash "${vendorUninstaller}"
