@@ -3,12 +3,12 @@
 ###
 #
 #            Name:  Homebrew Binaries.sh
-#     Description:  Returns list of Homebrew-installed binaries (if Homebrew is
-#                   installed). Runs as currently logged-in user to avoid
-#                   running in root context.
+#     Description:  Returns list of Homebrew-installed binaries and casks (if
+#                   Homebrew is installed). Runs as currently logged-in user to
+#                   avoid running in root context.
 #         Created:  2020-02-10
-#   Last Modified:  2020-11-02
-#         Version:  1.0.2
+#   Last Modified:  2021-02-02
+#         Version:  1.1
 #
 #
 # Copyright 2020 Palantir Technologies, Inc.
@@ -35,7 +35,15 @@
 
 
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-brewPath="/usr/local/bin/brew"
+# Determine Homebrew directory based on platform architecture,
+# use to define Homebrew binary paths.
+architectureCheck=$(/usr/bin/arch)
+if [ "$architectureCheck" = "arm64" ]; then
+  brewPrefix="/opt/homebrew/bin"
+else
+  brewPrefix="/usr/local/bin"
+fi
+brewPath="$brewPrefix/brew"
 
 
 
@@ -45,7 +53,7 @@ brewPath="/usr/local/bin/brew"
 
 # Check for presence of Homebrew and get list of installed binaries.
 if [ -e "$brewPath" ]; then
-  brewBinaryList=$(sudo -u "$loggedInUser" "$brewPath" list --formula 2>&1)
+  brewBinaryList=$(sudo -u "$loggedInUser" "$brewPath" list 2>&1)
 else
   brewBinaryList=""
 fi

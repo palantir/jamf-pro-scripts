@@ -6,8 +6,8 @@
 #     Description:  Returns Homebrew version (if installed). Runs as currently
 #                   logged-in user to avoid running in root context.
 #         Created:  2016-06-06
-#   Last Modified:  2020-07-08
-#         Version:  2.4.1
+#   Last Modified:  2021-02-02
+#         Version:  2.5
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -34,7 +34,15 @@
 
 
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-brewPath="/usr/local/bin/brew"
+# Determine Homebrew directory based on platform architecture,
+# use to define Homebrew binary paths.
+architectureCheck=$(/usr/bin/arch)
+if [ "$architectureCheck" = "arm64" ]; then
+  brewPrefix="/opt/homebrew/bin"
+else
+  brewPrefix="/usr/local/bin"
+fi
+brewPath="$brewPrefix/brew"
 
 
 
