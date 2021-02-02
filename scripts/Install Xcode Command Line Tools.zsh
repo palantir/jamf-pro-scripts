@@ -5,8 +5,8 @@
 #            Name:  Install Xcode Command Line Tools.zsh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2020-06-22
-#         Version:  5.5
+#   Last Modified:  2021-01-28
+#         Version:  5.5.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -52,10 +52,10 @@ function xcode_check {
 }
 
 
-# Exits if Mac is not running macOS 10.
+# Exits if Mac is not running macOS 10 or later.
 function check_macos {
-  if [[ $macOSVersionMajor -ne 10 ]]; then
-    echo "❌ ERROR: This script is only supported in macOS 10 (version detected: $(/usr/bin/sw_vers -productVersion)), unable to proceed."
+  if [[ "$macOSVersionMajor" -lt 10 ]]; then
+    echo "❌ ERROR: This Mac is running an incompatible operating system $(/usr/bin/sw_vers -productVersion)), unable to proceed."
     exit 72
   fi
 }
@@ -80,7 +80,7 @@ check_macos
 
 # Get current Xcode Command Line Tools label via softwareupdate.
 /usr/bin/touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
-if [[ "$macOSVersionMinor" -lt 15 ]]; then
+if [[ "$macOSVersionMajor" -eq 10 && "$macOSVersionMinor" -lt 15 ]]; then
   xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
     /usr/bin/awk -F"[*] " '/\* Command Line Tools/ {print $NF}' | \
     /usr/bin/sed 's/^ *//' | \
