@@ -2,15 +2,16 @@
 
 ###
 #
-#            Name:  Homebrew Version.sh
-#     Description:  Returns Homebrew version (if installed). Runs as currently
-#                   logged-in user to avoid running in root context.
-#         Created:  2016-06-06
+#            Name:  Homebrew Formulae.sh
+#     Description:  Returns list of Homebrew-installed formulae (if Homebrew is
+#                   installed). Runs as currently logged-in user to avoid
+#                   running in root context.
+#         Created:  2020-02-10
 #   Last Modified:  2021-02-02
-#         Version:  2.5
+#         Version:  1.1
 #
 #
-# Copyright 2016 Palantir Technologies, Inc.
+# Copyright 2020 Palantir Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,16 +51,16 @@ brewPath="$brewPrefix/brew"
 
 
 
-# Check for presence of target binary and get version.
+# Check for presence of Homebrew and get list of installations.
 if [ -e "$brewPath" ]; then
-  brewCheck=$(sudo -u "$loggedInUser" "$brewPath" --version 2>&1)
+  brewFormulaList=$(sudo -u "$loggedInUser" "$brewPath" list --formulae 2>&1)
 else
-  brewCheck=""
+  brewFormulaList=""
 fi
 
 
 # Report result.
-echo "<result>$brewCheck</result>"
+echo "<result>$brewFormulaList</result>"
 
 
 
