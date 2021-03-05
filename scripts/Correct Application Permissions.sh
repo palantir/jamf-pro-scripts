@@ -39,9 +39,6 @@
 targetApp="${4}"
 # Get current user and OS information.
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-loggedInUID=$(/usr/bin/id -u "$loggedInUser")
-macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F . '{print $1}')
-macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F . '{print $2}')
 
 
 
