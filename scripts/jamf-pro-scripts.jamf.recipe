@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Comment</key>
+	<string>Copyright 2021 Palantir Technologies, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</string>
+	<key>Description</key>
+	<string>Uploads jamf-pro-scripts to the Jamf Pro server.</string>
+	<key>Identifier</key>
+	<string>com.github.palantir.jamf.jamf-pro-scripts</string>
+	<key>Input</key>
+	<dict>
+		<key>replace_script</key>
+		<true/>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>2.0.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>script_category</key>
+				<string>Maintenance</string>
+				<key>script_name</key>
+				<string>Add APFS Volume</string>
+				<key>script_parameter4</key>
+				<string>Startup Disk Name</string>
+				<key>script_parameter5</key>
+				<string>New Volume Name</string>
+				<key>script_parameter6</key>
+				<string>New Volume Size</string>
+				<key>script_parameter7</key>
+				<string>New Volume APFS Format</string>
+				<key>script_path</key>
+				<string>Add APFS Volume.zsh</string>
+				<key>script_priority</key>
+				<string>Before</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfScriptUploader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>script_category</key>
+				<string>Maintenance</string>
+				<key>script_name</key>
+				<string>Correct Application Permissions</string>
+				<key>script_parameter4</key>
+				<string>Target Application</string>
+				<key>script_path</key>
+				<string>Correct Application Permissions.sh</string>
+				<key>script_priority</key>
+				<string>After</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfScriptUploader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>script_category</key>
+				<string>Maintenance</string>
+				<key>script_name</key>
+				<string>Quit Single Application</string>
+				<key>script_parameter4</key>
+				<string>Target Application</string>
+				<key>script_path</key>
+				<string>Quit Single Application.sh</string>
+				<key>script_priority</key>
+				<string>Before</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.grahampugh.jamf-upload.processors/JamfScriptUploader</string>
+		</dict>
+	</array>
+</dict>
+</plist>
