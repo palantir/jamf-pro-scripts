@@ -50,7 +50,7 @@ macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F . '{print
 
 
 # Exits if any required Jamf Pro arguments are undefined.
-function check_jamf_pro_arguments {
+check_jamf_pro_arguments () {
   if [ -z "$targetApp" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
@@ -59,7 +59,7 @@ function check_jamf_pro_arguments {
 
 
 # Exits if root is the currently logged-in user, or no logged-in user is detected.
-function check_logged_in_user {
+check_logged_in_user () {
   if [ "$loggedInUser" = "root" ] || [ -z "$loggedInUser" ]; then
     echo "Nobody is logged in, no action required."
     exit 0
