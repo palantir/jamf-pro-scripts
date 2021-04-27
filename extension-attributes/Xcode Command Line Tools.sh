@@ -6,8 +6,8 @@
 #     Description:  Returns whether Xcode Command Line Tools are installed
 #                   (either standalone or as part of Xcode.app bundle).
 #         Created:  2016-12-09
-#   Last Modified:  2020-07-08
-#         Version:  1.3.1
+#   Last Modified:  2021-04-27
+#         Version:  1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -33,7 +33,10 @@
 
 
 
-xcodeCheck=$(/usr/bin/xcode-select -p 2>&1)
+xcodeCLTCheck=""
+xcodeAppPath="/Applications/Xcode.app/Contents/Developer"
+xcodeCLTPath="/Library/Developer/CommandLineTools"
+xcodeCheck=$(/usr/bin/xcode-select --print-path 2>&1)
 
 
 
@@ -42,17 +45,15 @@ xcodeCheck=$(/usr/bin/xcode-select -p 2>&1)
 
 
 # Check for presence of target file path.
-if [ "$xcodeCheck" = "/Applications/Xcode.app/Contents/Developer" ]; then
-  xcodeCLI="Bundled with Xcode"
-elif [ "$xcodeCheck" = "/Library/Developer/CommandLineTools" ]; then
-  xcodeCLI="Standalone"
-else
-  xcodeCLI=""
+if [ "$xcodeCheck" = "$xcodeAppPath" ] && [ -e "$xcodeAppPath" ]; then
+  xcodeCLTCheck="Bundled with Xcode"
+elif [ "$xcodeCheck" = "$xcodeCLTPath" ] && [ -e "$xcodeCLTPath" ]; then
+  xcodeCLTCheck="Standalone"
 fi
 
 
 # Report result.
-echo "<result>$xcodeCLI</result>"
+echo "<result>$xcodeCLTCheck</result>"
 
 
 
