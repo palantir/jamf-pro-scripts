@@ -13,8 +13,8 @@
 #                   extensions, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2021-01-04
-#         Version:  1.3.5
+#   Last Modified:  2021-06-24
+#         Version:  1.3.6
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -86,6 +86,7 @@ processNames=(
 
 # FILE PATHS:
 # A list of full file paths to target for launchd unload and removal.
+# Leave off trailing slashes from directory paths.
 #
 # If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
@@ -146,7 +147,7 @@ function delete_files {
       # Move all files to /tmp/$scriptName.
       tmpKillPath="/tmp/$scriptName"
       /bin/mkdir -p "$tmpKillPath"
-      /bin/mv "$targetFile" "$tmpKillPath"
+      /bin/mv "$targetFile" "$tmpKillPath/"
       echo "Moved $targetFile to $tmpKillPath. File will be deleted on subsequent restart."
     fi
   done
