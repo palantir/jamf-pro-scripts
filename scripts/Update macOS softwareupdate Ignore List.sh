@@ -6,8 +6,8 @@
 #     Description:  Adds restricted macOS software updates to the softwareupdate
 #                   ignore list, or resets the ignore list.
 #         Created:  2018-01-24
-#   Last Modified:  2020-01-07
-#         Version:  3.0.3
+#   Last Modified:  2021-07-08
+#         Version:  3.0.4
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
@@ -40,7 +40,7 @@ resetIgnoreList="$4"
 # List all desired ignored software updates here, one per variable. Blank
 # variables will be skipped.
 # Jamf Pro script parameters: "Ignored Update 1", "Ignored Update 2", etc.
-updateBlacklist=(
+updateIgnoreList=(
   "$5"
   "$6"
   "$7"
@@ -60,8 +60,8 @@ if [ "$resetIgnoreList" = "yes" ]; then
 fi
 
 
-# Add blacklisted items to softwareupdate ignore list.
-for update in "${updateBlacklist[@]}"; do
+# Add items to softwareupdate ignore list.
+for update in "${updateIgnoreList[@]}"; do
   if [ -n "$update" ]; then
     /usr/sbin/softwareupdate --ignore "$update"
   fi
