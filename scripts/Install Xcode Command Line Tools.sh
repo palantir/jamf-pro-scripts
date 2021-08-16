@@ -1,12 +1,12 @@
-#!/bin/zsh
+#!/bin/sh
 
 ###
 #
-#            Name:  Install Xcode Command Line Tools.zsh
+#            Name:  Install Xcode Command Line Tools.sh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2021-01-28
-#         Version:  5.5.1
+#   Last Modified:  2021-08-16
+#         Version:  5.6
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -42,9 +42,9 @@ macOSVersionMinor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print 
 
 
 # Checks current state of Xcode Command Line Tools installation.
-function xcode_check {
-  xcodeSelectCheck=$(/usr/bin/xcode-select -p 2>&1)
-  if [ "$xcodeSelectCheck" = "/Applications/Xcode.app/Contents/Developer" ] || [ "$xcodeSelectCheck" = "/Library/Developer/CommandLineTools" ]; then
+xcode_check () {
+  xcodeSelectCheck=$(/usr/bin/xcode-select --print-path 2>&1)
+  if [ "$xcodeSelectCheck" = "/Library/Developer/CommandLineTools" ]; then
     xcodeCLI="installed"
   else
     xcodeCLI="missing"
@@ -53,8 +53,8 @@ function xcode_check {
 
 
 # Exits if Mac is not running macOS 10 or later.
-function check_macos {
-  if [[ "$macOSVersionMajor" -lt 10 ]]; then
+check_macos () {
+  if [ "$macOSVersionMajor" -lt 10 ]; then
     echo "❌ ERROR: This Mac is running an incompatible operating system $(/usr/bin/sw_vers -productVersion)), unable to proceed."
     exit 72
   fi
@@ -80,7 +80,7 @@ check_macos
 
 # Get current Xcode Command Line Tools label via softwareupdate.
 /usr/bin/touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
-if [[ "$macOSVersionMajor" -eq 10 && "$macOSVersionMinor" -lt 15 ]]; then
+if [ "$macOSVersionMajor" -eq 10 ] && [ "$macOSVersionMinor" -lt 15 ]; then
   xcodeCommandLineTools=$(/usr/sbin/softwareupdate --list 2>&1 | \
     /usr/bin/awk -F"[*] " '/\* Command Line Tools/ {print $NF}' | \
     /usr/bin/sed 's/^ *//' | \
