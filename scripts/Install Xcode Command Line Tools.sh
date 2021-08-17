@@ -5,8 +5,8 @@
 #            Name:  Install Xcode Command Line Tools.sh
 #     Description:  Installs Xcode Command Line Tools.
 #         Created:  2016-01-31
-#   Last Modified:  2021-08-16
-#         Version:  5.6
+#   Last Modified:  2021-08-17
+#         Version:  5.6.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -71,6 +71,8 @@ xcode_check
 if [ "$xcodeCLI" = "installed" ]; then
   echo "Xcode Command Line Tools already installed, no action required."
   exit 0
+else
+  /usr/bin/xcode-select --reset
 fi
 
 
@@ -103,6 +105,7 @@ if [ "$xcodeCLI" = "missing" ]; then
   echo "❌ ERROR: Xcode Command Line Tool install was unsuccessful."
   exit 1
 else
+  /bin/rm -f "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
   echo "✅ Installed Xcode Command Line Tools."
 fi
 
