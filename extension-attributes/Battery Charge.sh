@@ -38,3 +38,7 @@ batteryChargePercentage=$(/usr/bin/pmset -g batt | /usr/bin/awk '/%/ {print $3}'
 
 # Report results.
 echo "<result>$batteryChargePercentage</result>"
+
+
+
+exit 0
