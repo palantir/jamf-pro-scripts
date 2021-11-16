@@ -21,5 +21,9 @@ Given a list of vendor uninstaller commands and paths, process names, and/or fil
 
 If you don't need to perform any of the script functions (`run_vendor_uninstallers`, `quit_processes`, `delete_files`), just leave the corresponding array values blank (or comment the lines out) and the script will skip those steps.
 
+## What if I just have one file to delete and one process to kill? (e.g. Mac App Store installs)
+
+Use `Uninstall Single Application.sh`! It matches the template workflow but lets you define one process and one file path to target for uninstallation via Jamf Pro policy script argument. This allows reuse of a single script for multiple app uninstallation policies.
+
 ## License
 This project is made available under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
