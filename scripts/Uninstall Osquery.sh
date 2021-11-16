@@ -67,8 +67,8 @@ launchDaemonCheck=$(/bin/launchctl list)
 # If the vendor did not provide an uninstaller workflow, comment these array
 # values out.
 vendorUninstallerBashScripts=(
-  "/path/to/vendor_uninstaller_command1.sh"
-  "/path/to/vendor_uninstaller_command2.sh"
+#  "/path/to/vendor_uninstaller_command1.sh"
+#  "/path/to/vendor_uninstaller_command2.sh"
 )
 
 
