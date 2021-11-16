@@ -3,17 +3,18 @@
 
 ###
 #
-#            Name:  Uninstall Box Sync.sh
-#     Description:  Uninstalls Box Sync.
+#            Name:  Uninstall Single Application.sh
+#     Description:  A template script to assist with the uninstallation of
+#                   macOS products where the vendor has missing or incomplete
+#                   removal solutions.
 #                   Attempts vendor uninstall by running all provided
 #                   uninstallation commands, quits all running target processes,
 #                   unloads all associated launchd tasks, disables kernel
 #                   extensions, then removes all associated files.
-#                   Based on uninstaller-template:
-#                   https://github.com/palantir/jamf-pro-scripts/tree/master/scripts/script-templates/uninstaller-template
+#                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2021-01-04
-#         Version:  1.3.5pal1
+#   Last Modified:  2021-11-15
+#         Version:  1.3.7pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -78,21 +79,17 @@ vendorUninstallerBashScripts=(
 #
 # If no processes need to be quit, comment these array values out.
 processNames=(
-  "Box Sync"
+  "$4" # Jamf Pro script parameter: "App Process"
 )
 
 
 # FILE PATHS:
 # A list of full file paths to target for launchd unload and removal.
+# Leave off trailing slashes from directory paths.
 #
 # If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
-  "/Applications/Box Sync.app"
-  "/Library/PrivilegedHelperTools/com.box.sync.bootstrapper"
-  "/Library/PrivilegedHelperTools/com.box.sync.iconhelper"
-  "$loggedInUserHome/Library/Logs/Box/Box Sync"
-  "$loggedInUserHome/Library/Application Support/Box/Box Sync"
-  "$loggedInUserHome/Box Sync"
+  "$5" # Jamf Pro script parameter: "App File Path"; should be full path to the application, e.g. "/System/Applications/Chess.app"
 )
 
 
@@ -101,8 +98,23 @@ resourceFiles=(
 
 
 
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments () {
+  jamfProArguments=(
+    "${processNames[0]}"
+    "${resourceFiles[0]}"
+  )
+  for argument in "${jamfProArguments[@]}"; do
+    if [ -z "$argument" ]; then
+      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
+      exit 74
+    fi
+  done
+}
+
+
 # Run vendor uninstaller Bash scripts.
-function run_vendor_uninstaller_scripts {
+run_vendor_uninstaller_scripts () {
   for vendorUninstaller in "${vendorUninstallerBashScripts[@]}"; do
     bash "${vendorUninstaller}"
   done
@@ -110,7 +122,7 @@ function run_vendor_uninstaller_scripts {
 
 
 # Quit target processes and remove associated login items.
-function quit_processes {
+quit_processes () {
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
       /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"$process\" to quit"
@@ -124,31 +136,31 @@ function quit_processes {
 
 
 # Remove all remaining resource files.
-function delete_files {
+delete_files () {
   for targetFile in "${resourceFiles[@]}"; do
     # Check if file exists.
-    if [[ -e "$targetFile" ]]; then
+    if [ -e "$targetFile" ]; then
       # Check if file is a plist.
-      if [[ "$targetFile" == *".plist" ]]; then
+      if echo "$targetFile" | /usr/bin/grep -q ".plist"; then
         # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
         justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
-        if [[ "$launchAgentCheck" =~ $justThePlist ]]; then
+        if echo "$launchAgentCheck" | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
           echo "Unloaded LaunchAgent at $targetFile."
-        elif [[ "$launchDaemonCheck" =~ $justThePlist ]]; then
+        elif echo "$launchDaemonCheck" | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl unload "$targetFile"
           echo "Unloaded LaunchDaemon at $targetFile."
         fi
       fi
       # Remove system immutable flag if present.
-      if [[ $(/bin/ls -ldO "$targetFile" | /usr/bin/awk '{print $5}') =~ schg ]]; then
+      if /bin/ls -ldO "$targetFile" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
         /usr/bin/chflags -R noschg "$targetFile"
-        /bin/echo "Removed system immutable flag for $targetFile."
+        echo "Removed system immutable flag for $targetFile."
       fi
       # Move all files to /tmp/$scriptName.
       tmpKillPath="/tmp/$scriptName"
       /bin/mkdir -p "$tmpKillPath"
-      /bin/mv "$targetFile" "$tmpKillPath"
+      /bin/mv "$targetFile" "$tmpKillPath/"
       echo "Moved $targetFile to $tmpKillPath. File will be deleted on subsequent restart."
     fi
   done
@@ -158,6 +170,10 @@ function delete_files {
 
 ########## main process ##########
 
+
+
+# Exit if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments
 
 
 # Each function will only execute if the respective source array is not empty
