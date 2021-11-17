@@ -6,8 +6,8 @@
 #     Description:  Adds restricted macOS software updates to the softwareupdate
 #                   ignore list, or resets the ignore list.
 #         Created:  2018-01-24
-#   Last Modified:  2021-07-08
-#         Version:  3.0.4
+#   Last Modified:  2021-11-16
+#         Version:  3.1
 #
 #
 # Copyright 2018 Palantir Technologies, Inc.
