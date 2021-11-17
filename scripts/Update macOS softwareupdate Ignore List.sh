@@ -47,11 +47,30 @@ updateIgnoreList=(
   "$8"
   "$9"
 )
+macOSVersionMajor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $1}')
+
+
+
+########## function-ing ##########
+
+
+
+# Exits if Mac is running macOS 11 or later.
+check_macos () {
+  if [ "$macOSVersionMajor" -ge 11 ]; then
+    echo "❌ ERROR: softwareupdate's ignore functionality is deprecated in macOS 10.15 Catalina and is no longer supported in macOS 11 Big Sur or later, unable to proceed."
+    exit 72
+  fi
+}
 
 
 
 ########## main process ##########
 
+
+
+# Verify script prerequisites.
+check_macos
 
 
 # Initialize softwareupdate ignore list.
