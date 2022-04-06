@@ -103,7 +103,7 @@ delete_files () {
         # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
         justThePlist=$(/usr/bin/basename "$resourceFile" | /usr/bin/awk -F.plist '{print $1}')
         if echo "$launchAgentCheck" | /usr/bin/grep -q "$justThePlist"; then
-          /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
+          /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$resourceFile"
           echo "Unloaded LaunchAgent at ${resourceFile}."
         elif echo "$launchDaemonCheck" | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl unload "$resourceFile"
