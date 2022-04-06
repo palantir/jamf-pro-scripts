@@ -1,5 +1,4 @@
-# shellcheck shell=bash
-#!/bin/zsh
+#!/bin/bash
 
 ###
 #
