@@ -1,5 +1,5 @@
-#!/bin/bash
-# shellcheck disable=SC2034
+#!/bin/zsh
+# shellcheck shell=bash
 
 ###
 #
@@ -9,12 +9,12 @@
 #                   removal solutions.
 #                   Attempts vendor uninstall by running all provided
 #                   uninstallation commands, quits all running target processes,
-#                   unloads all associated launchd tasks, disables kernel
-#                   extensions, then removes all associated files.
+#                   unloads all associated launchd tasks, then removes all
+#                   associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2021-11-15
-#         Version:  1.3.7pal1
+#   Last Modified:  2022-04-06
+#         Version:  1.3.8pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -41,12 +41,12 @@
 
 
 # ENVIRONMENT VARIABLES (leave as-is):
-scriptName=$(/usr/bin/basename "$0")
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the
 # current user's home folder path.
 # Don't just assume the home folder is at /Users/$loggedInUser.
-loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+# shellcheck disable=SC2034
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 currentProcesses=$(/bin/ps aux)
 launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
@@ -73,7 +73,7 @@ vendorUninstallerBashScripts=(
 
 
 # PROCESSES:
-# A list of application processes to target for quit and login item removal.
+# A list of application processes to target for quitting.
 # Names should match what is displayed for the process in Activity Monitor
 # (e.g. "Chess", not "Chess.app").
 #
@@ -113,15 +113,14 @@ run_vendor_uninstaller_scripts () {
 }
 
 
-# Quit target processes and remove associated login items.
+# Quit target processes.
 quit_processes () {
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
-      /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"$process\" to quit"
-      /usr/bin/osascript -e "tell application \"System Events\" to delete every login item whose name is \"$process\""
-      echo "Quit $process, removed from login items if present."
+      /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${process}\" to quit"
+      echo "Quit ${process}."
     else
-      echo "$process not running."
+      echo "${process} not running."
     fi
   done
 }
@@ -138,22 +137,20 @@ delete_files () {
         justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
         if echo "$launchAgentCheck" | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
-          echo "Unloaded LaunchAgent at $targetFile."
+          echo "Unloaded LaunchAgent at ${targetFile}."
         elif echo "$launchDaemonCheck" | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl unload "$targetFile"
-          echo "Unloaded LaunchDaemon at $targetFile."
+          echo "Unloaded LaunchDaemon at ${targetFile}."
         fi
       fi
       # Remove system immutable flag if present.
       if /bin/ls -ldO "$targetFile" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
         /usr/bin/chflags -R noschg "$targetFile"
-        echo "Removed system immutable flag for $targetFile."
+        echo "Removed system immutable flag for ${targetFile}."
       fi
-      # Move all files to /tmp/$scriptName.
-      tmpKillPath="/tmp/$scriptName"
-      /bin/mkdir -p "$tmpKillPath"
-      /bin/mv "$targetFile" "$tmpKillPath/"
-      echo "Moved $targetFile to $tmpKillPath. File will be deleted on subsequent restart."
+      # Remove file.
+      /bin/rm -rf "$targetFile"
+      echo "Removed ${targetFile}."
     fi
   done
 }
