@@ -7,13 +7,13 @@
 #                   macOS products where the vendor has missing or incomplete
 #                   removal solutions.
 #                   Attempts vendor uninstall by running all provided
-#                   uninstallation commands, quits all running target processes,
-#                   unloads all associated launchd tasks, then removes all
-#                   associated files.
+#                   uninstallation executables, quits all running target
+#                   processes, unloads all associated launchd tasks, then
+#                   removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2022-04-06
-#         Version:  1.3.8pal1
+#   Last Modified:  2022-06-03
+#         Version:  1.3.9pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -42,8 +42,8 @@
 # ENVIRONMENT VARIABLES (leave as-is):
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the
-# current user's home folder path.
-# Don't just assume the home folder is at /Users/$loggedInUser.
+# current user's home folder path. Don't just assume the home folder is at
+# /Users/$loggedInUser.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
@@ -86,7 +86,7 @@ resourceFiles=(
 
 
 
-# Quit target processes.
+# Quits target processes.
 quit_processes () {
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
@@ -99,7 +99,7 @@ quit_processes () {
 }
 
 
-# Remove all remaining resource files.
+# Removes all remaining resource files.
 delete_files () {
   for targetFile in "${resourceFiles[@]}"; do
     # Check if file exists.

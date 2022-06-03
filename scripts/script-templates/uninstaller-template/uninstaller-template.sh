@@ -7,13 +7,13 @@
 #                   macOS products where the vendor has missing or incomplete
 #                   removal solutions.
 #                   Attempts vendor uninstall by running all provided
-#                   uninstallation commands, quits all running target processes,
-#                   unloads all associated launchd tasks, then removes all
-#                   associated files.
+#                   uninstallation executables, quits all running target
+#                   processes, unloads all associated launchd tasks, then
+#                   removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2022-04-06
-#         Version:  1.3.8
+#   Last Modified:  2022-06-03
+#         Version:  1.3.9
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -42,8 +42,8 @@
 # ENVIRONMENT VARIABLES (leave as-is):
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the
-# current user's home folder path.
-# Don't just assume the home folder is at /Users/$loggedInUser.
+# current user's home folder path. Don't just assume the home folder is at
+# /Users/$loggedInUser.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
@@ -52,20 +52,17 @@ launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
-# UNINSTALLER BASH SCRIPTS:
-# A list of file paths for vendor-provided uninstallation Bash scripts.
+# VENDOR UNINSTALLERS:
+# A list of file paths for vendor-provided uninstallation tools.
 # Note that vendor uninstaller workflows may differ greatly. Some vendors may
-# use their own command-line tools, custom flags, or other workflows to
+# use their own command-line tools with custom flags or other workflows to
 # accomplish this task (that's why this script exists!), so make any necessary
-# changes to the below commands if the uninstall workflows are not Bash
-# executable files.
-#
-# This may not work as expected if you reference nonexistent scripts or
-# binaries, or if the uninstaller resources are not executable via Bash.
+# changes to the below commands if the uninstallation workflow isn't simply
+# calling executable files.
 #
 # If the vendor did not provide an uninstaller workflow, comment these array
 # values out.
-vendorUninstallerBashScripts=(
+vendorUninstallers=(
   "/path/to/vendor_uninstaller_command1.sh"
   "/path/to/vendor_uninstaller_command2.sh"
 )
@@ -99,15 +96,19 @@ resourceFiles=(
 
 
 
-# Run vendor uninstaller Bash scripts.
-run_vendor_uninstaller_scripts () {
-  for vendorUninstaller in "${vendorUninstallerBashScripts[@]}"; do
-    bash "${vendorUninstaller}"
+# Runs vendor uninstallers.
+run_vendor_uninstallers () {
+  for uninstaller in "${vendorUninstallers[@]}"; do
+    if [[ -e "$uninstaller" ]]; then
+      ./"${uninstaller}"
+    else
+      echo "Vendor uninstaller not found at ${uninstaller}."
+    fi
   done
 }
 
 
-# Quit target processes.
+# Quits target processes.
 quit_processes () {
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
@@ -120,7 +121,7 @@ quit_processes () {
 }
 
 
-# Remove all remaining resource files.
+# Removes all remaining resource files.
 delete_files () {
   for targetFile in "${resourceFiles[@]}"; do
     # Check if file exists.
@@ -157,9 +158,9 @@ delete_files () {
 
 # Each function will only execute if the respective source array is not empty
 # or undefined.
-if [[ -n "${vendorUninstallerBashScripts[*]}" ]]; then
-  echo "Running vendor uninstaller Bash scripts..."
-  run_vendor_uninstaller_scripts
+if [[ -n "${vendorUninstallers[*]}" ]]; then
+  echo "Running vendor uninstallers..."
+  run_vendor_uninstallers
 fi
 
 if [[ -n "${processNames[*]}" ]]; then
