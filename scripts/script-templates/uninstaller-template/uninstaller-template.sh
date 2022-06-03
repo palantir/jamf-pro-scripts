@@ -102,8 +102,7 @@ run_vendor_uninstallers () {
     if [[ -e "$uninstaller" ]]; then
       ./"${uninstaller}"
     else
-      echo "❌ ERROR: Vendor uninstaller not found at ${uninstaller}, unable to proceed."
-      exit 1
+      echo "Vendor uninstaller not found at ${uninstaller}."
     fi
   done
 }
