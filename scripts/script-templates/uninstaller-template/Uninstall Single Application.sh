@@ -12,8 +12,8 @@
 #                   removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2022-06-03
-#         Version:  1.3.9pal1
+#   Last Modified:  2022-06-21
+#         Version:  1.3.9pal2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -76,7 +76,7 @@ targetFile="${5}" # Jamf Pro script parameter: "App File Path"; should be full p
 
 # Exit if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
-  if [ -z "$processName" ] || [ -z "$resourceFile" ]; then
+  if [ -z "$process" ] || [ -z "$targetFile" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
