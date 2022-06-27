@@ -5,8 +5,8 @@
 #            Name:  Osquery Version.sh
 #     Description:  Returns Osquery version (if installed).
 #         Created:  2017-07-13
-#   Last Modified:  2020-07-08
-#         Version:  2.2.1
+#   Last Modified:  2022-06-27
+#         Version:  3.0
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -32,7 +32,9 @@
 
 
 
-osquerydPath="/usr/local/bin/osqueryd"
+osqueryAppPath="/opt/osquery/lib/osquery.app"
+osquerydLegacyPath="/usr/local/bin/osqueryd"
+osqueryVersion=""
 
 
 
@@ -40,16 +42,20 @@ osquerydPath="/usr/local/bin/osqueryd"
 
 
 
-# Check for presence of target binary and get version.
-if [ -e "$osquerydPath" ]; then
-  osqueryVersion=$("$osquerydPath" --version | /usr/bin/awk '{print $3}')
-else
-  osqueryVersion=""
+# Check for presence of target application (or legacy binary) and get version.
+if [ -d "$osqueryAppPath" ]; then
+  if [ -e "${osqueryAppPath}/Contents/Info.plist" ]; then
+    osqueryVersion=$(/usr/bin/defaults read "${osqueryAppPath}/Contents/Info.plist" CFBundleVersion)
+  else
+    osqueryVersion="missing Info.plist"
+  fi
+elif [ -e "$osquerydLegacyPath" ]; then
+  osqueryVersion=$("$osquerydLegacyPath" --version | /usr/bin/awk '{print $3}')
 fi
 
 
 # Report result.
-echo "<result>$osqueryVersion</result>"
+echo "<result>${osqueryVersion}</result>"
 
 
 
