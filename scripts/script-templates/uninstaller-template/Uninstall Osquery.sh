@@ -12,8 +12,8 @@
 #                   removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2022-06-03
-#         Version:  1.3.9pal1
+#   Last Modified:  2022-06-27
+#         Version:  1.3.9pal2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -77,6 +77,7 @@ resourceFiles=(
   "/private/var/log/osquery"
   "/private/var/osquery"
   "/usr/local/bin/osqueryctl"
+  "/usr/local/bin/osqueryd"
   "/usr/local/bin/osqueryi"
 )
 

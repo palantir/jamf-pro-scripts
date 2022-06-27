@@ -5,8 +5,8 @@
 #            Name:  Osquery Server.sh
 #     Description:  Returns tls_hostname attribute from osquery.flags (if present).
 #         Created:  2017-09-07
-#   Last Modified:  2020-07-08
-#         Version:  1.1.1
+#   Last Modified:  2022-06-27
+#         Version:  1.1.2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,6 +33,7 @@
 
 
 osqueryFlagsPath="/var/osquery/osquery.flags"
+osqueryServer=""
 
 
 
@@ -43,13 +44,11 @@ osqueryFlagsPath="/var/osquery/osquery.flags"
 # Check for presence of target file and get server.
 if [ -e "$osqueryFlagsPath" ]; then
   osqueryServer=$(/usr/bin/awk -F[=] '/tls_hostname/ {print $2}' "$osqueryFlagsPath")
-else
-  osqueryServer=""
 fi
 
 
 # Report result.
-echo "<result>$osqueryServer</result>"
+echo "<result>${osqueryServer}</result>"
 
 
 
