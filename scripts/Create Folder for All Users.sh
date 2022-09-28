@@ -74,7 +74,7 @@ for targetUser in $(/usr/bin/dscl . list "/Users" UniqueID | /usr/bin/awk '$2 > 
     echo "❌ ERROR: No home folder found at ${targetUserHome}, unable to proceed."
     exit 1
   # Skip if target folder already exists.
-  elif [ -e "$targetFolderPath" ]; then
+  elif [ -d "$targetFolderPath" ]; then
     echo "Folder already exists at ${targetFolderPath}, no action required for this user."
   else
     # For each user, create target folder.
