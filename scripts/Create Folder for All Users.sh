@@ -69,7 +69,7 @@ for targetUser in $(/usr/bin/dscl . list "/Users" UniqueID | /usr/bin/awk '$2 > 
   if [ -z "$targetUserHome" ]; then
     echo "❌ ERROR: No home folder defined for ${targetUser}, unable to proceed."
     exit 1
-    # Exit with error if home folder doesn' exist.
+    # Exit with error if home folder doesn't exist.
   elif [ ! -d "$targetUserHome" ]; then
     echo "❌ ERROR: No home folder found at ${targetUserHome}, unable to proceed."
     exit 1
