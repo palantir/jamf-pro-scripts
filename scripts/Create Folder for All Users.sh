@@ -6,8 +6,8 @@
 #     Description:  Creates specified folder for all users of a particular Mac
 #                   at the top level of each user's home folder.
 #         Created:  2016-08-22
-#   Last Modified:  2020-07-08
-#         Version:  1.3.1
+#   Last Modified:  2022-09-28
+#         Version:  1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -35,7 +35,7 @@
 
 # Jamf Pro script parameter: "Target Folder"
 # Folder will be created in the top level of each user's home folder.
-targetFolder="$4"
+targetFolder="${4}"
 
 
 
@@ -57,18 +57,30 @@ check_jamf_pro_arguments () {
 
 
 
-# Exit if any required Jamf Pro arguments are undefined.
+# Verify script prerequisites.
 check_jamf_pro_arguments
 
 
 # Iterate through all users with ID greater than 500.
 for targetUser in $(/usr/bin/dscl . list "/Users" UniqueID | /usr/bin/awk '$2 > 500 {print $1}'); do
-  # For each user, create $targetFolder at the top level of user's home folder
-  # (if it doesn't already exist).
-  targetUserHome=$(/usr/bin/dscl . -read "/Users/$targetUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-  if [ ! -d "$targetUserHome/$targetFolder" ]; then
-    /bin/mkdir -v "$targetUserHome/$targetFolder"
-    /usr/sbin/chown "$targetUser" "$targetUserHome/$targetFolder"
+  targetUserHome=$(/usr/bin/dscl . -read "/Users/${targetUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+  targetFolderPath="${targetUserHome}/${targetFolder}"
+  # Exit with error if home folder path is undefined.
+  if [ -z "$targetUserHome" ]; then
+    echo "❌ ERROR: No home folder defined for ${targetUser}, unable to proceed."
+    exit 1
+    # Exit with error if home folder doesn't exist.
+  elif [ ! -d "$targetUserHome" ]; then
+    echo "❌ ERROR: No home folder found at ${targetUserHome}, unable to proceed."
+    exit 1
+  # Skip if target folder already exists.
+  elif [ -d "$targetFolderPath" ]; then
+    echo "Folder already exists at ${targetFolderPath}, no action required for this user."
+  else
+    # For each user, create target folder.
+    /bin/mkdir "$targetFolderPath" && echo "Created folder: ${targetFolderPath}"
+    # Make the user the owner of the folder.
+    /usr/sbin/chown "$targetUser" "$targetFolderPath"
   fi
 done
 
