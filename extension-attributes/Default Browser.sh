@@ -34,7 +34,7 @@
 
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-defaultBrowser=$(/usr/bin/defaults read "${loggedInUserHome}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" LSHandlers | /usr/bin/grep -B1 https | /usr/bin/awk -F\" '/LSHandlerRoleAll/ {print $2}')
+defaultBrowser=$(/usr/bin/defaults read "${loggedInUserHome}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" LSHandlers | /usr/bin/grep -B1 https | /usr/bin/awk -F\" '/LSHandlerRoleAll/ {print $2}' 2>"/dev/null")
 
 
 
