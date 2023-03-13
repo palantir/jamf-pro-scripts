@@ -4,11 +4,9 @@
 #
 #            Name:  Default Browser.sh
 #     Description:  Returns default browser of currently logged-in user.
-#                   Reformats browser agent string to full name when one of a
-#                   list of common browsers.
 #         Created:  2016-06-06
-#   Last Modified:  2020-07-08
-#         Version:  1.3.1
+#   Last Modified:  2023-03-13
+#         Version:  1.4
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -35,8 +33,8 @@
 
 
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-defaultBrowser=$(/usr/bin/defaults read "$loggedInUserHome/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" LSHandlers | /usr/bin/grep -B1 https | /usr/bin/awk -F\" '/LSHandlerRoleAll/ {print $2}')
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+defaultBrowser=$(/usr/bin/defaults read "${loggedInUserHome}/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist" LSHandlers | /usr/bin/grep -B1 https | /usr/bin/awk -F\" '/LSHandlerRoleAll/ {print $2}')
 
 
 
@@ -44,30 +42,8 @@ defaultBrowser=$(/usr/bin/defaults read "$loggedInUserHome/Library/Preferences/c
 
 
 
-# Convert default browser identifier to readable string (for some known browser strings).
-if [ -z "$defaultBrowser" ]; then
-  browserResult="Undefined"
-elif [ "$defaultBrowser" = "com.apple.safari" ]; then
-  browserResult="Safari"
-elif [ "$defaultBrowser" = "com.apple.safaritechnologypreview" ]; then
-  browserResult="Safari Technology Preview"
-elif [ "$defaultBrowser" = "com.google.chrome" ]; then
-  browserResult="Chrome"
-elif [ "$defaultBrowser" = "org.mozilla.firefox" ]; then
-  browserResult="Firefox"
-elif [ "$defaultBrowser" = "org.mozilla.aurora" ]; then
-  browserResult="Firefox Developer Edition"
-elif [ "$defaultBrowser" = "org.mozilla.nightly" ]; then
-  browserResult="Firefox Nightly"
-elif [ "$defaultBrowser" = "com.parallels.desktop.console" ]; then
-  browserResult="Parallels Desktop"
-else
-  browserResult="$defaultBrowser"
-fi
-
-
 # Report result.
-echo "<result>$browserResult</result>"
+echo "<result>${defaultBrowser}</result>"
 
 
 
