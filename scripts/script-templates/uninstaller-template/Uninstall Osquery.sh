@@ -12,8 +12,8 @@
 #                   removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2022-06-27
-#         Version:  1.3.9pal2
+#   Last Modified:  2023-03-14
+#         Version:  1.3.9pal3
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -71,6 +71,7 @@ processNames=(
 #
 # If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
+  "/Library/LaunchDaemons/com.facebook.osqueryd.plist"
   "/Library/LaunchDaemons/io.osquery.agent.plist"
   "/opt/osquery/lib/osquery.app"
   "/opt/osquery"
