@@ -3,10 +3,10 @@
 ###
 #
 #            Name:  Firmware Password Set.sh
-#     Description:  Reports whether a firmware password is set.
+#     Description:  Reports whether a firmware password is set on an Intel Mac.
 #         Created:  2020-01-17
-#   Last Modified:  2020-07-08
-#         Version:  1.0.1
+#   Last Modified:  2023-03-31
+#         Version:  1.1
 #
 #
 # Copyright 2020 Palantir Technologies, Inc.
@@ -28,16 +28,26 @@
 
 
 
+########## variable-ing ##########
+
+
+
+firmwarePasswordSet=""
+
+
+
 ########## main process ##########
 
 
 
-# Display whether or not a firmware password is set.
-firmwarePasswordSet=$(/usr/sbin/firmwarepasswd -check | /usr/bin/awk '/Enabled/ {print $NF}')
+# Display whether or not a firmware password is set on an Intel Mac.
+if $(/usr/bin/arch) = "i386"; then
+  firmwarePasswordSet=$(/usr/sbin/firmwarepasswd -check | /usr/bin/awk '/Enabled/ {print $NF}')
+fi
 
 
 # Report results.
-echo "<result>$firmwarePasswordSet</result>"
+echo "<result>${firmwarePasswordSet}</result>"
 
 
 
