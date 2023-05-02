@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC2034
 
 ###
 #
@@ -37,9 +36,9 @@
 # ENVIRONMENT VARIABLES (leave as-is)
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
+# shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
-currentProcesses=$(/bin/ps aux)
 launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
@@ -67,6 +66,7 @@ resourceFiles=(
 
 # Quits target processes.
 quit_processes () {
+  currentProcesses=$(/bin/ps aux)
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
       /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${process}\" to quit"
