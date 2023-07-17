@@ -3,17 +3,11 @@
 ###
 #
 #            Name:  Uninstall Osquery.sh
-#     Description:  A template script to assist with the uninstallation of
-#                   macOS products where the vendor has missing or incomplete
-#                   removal solutions.
-#                   Attempts vendor uninstall by running all provided
-#                   uninstallation executables, quits all running target
-#                   processes, unloads all associated launchd tasks, then
-#                   removes all associated files.
+#     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, unloads all associated launchd tasks, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2023-03-14
-#         Version:  1.3.9pal3
+#   Last Modified:  2023-05-02
+#         Version:  1.3.10pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -39,25 +33,18 @@
 
 
 
-# ENVIRONMENT VARIABLES (leave as-is):
+# ENVIRONMENT VARIABLES (leave as-is)
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-# For any file paths used later in this script, use "$loggedInUserHome" for the
-# current user's home folder path. Don't just assume the home folder is at
-# /Users/$loggedInUser.
+# For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
-currentProcesses=$(/bin/ps aux)
 launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
-# PROCESSES:
-# A list of application processes to target for quitting.
-# Names should match what is displayed for the process in Activity Monitor
-# (e.g. "Chess", not "Chess.app").
-#
-# If no processes need to be quit, comment these array values out.
+# PROCESSES
+# A list of application processes to target for quitting. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). If no processes need to be quit, comment these array values out.
 processNames=(
   "osqueryctl"
   "osqueryd"
@@ -65,11 +52,8 @@ processNames=(
 )
 
 
-# FILE PATHS:
-# A list of full file paths to target for launchd unload and removal.
-# Leave off trailing slashes from directory paths.
-#
-# If no files need to be manually deleted, comment these array values out.
+# FILE PATHS
+# A list of full file paths to target for launchd unload and removal. Leave off trailing slashes from directory paths. If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
   "/Library/LaunchDaemons/com.facebook.osqueryd.plist"
   "/Library/LaunchDaemons/io.osquery.agent.plist"
@@ -90,12 +74,11 @@ resourceFiles=(
 
 # Quits target processes.
 quit_processes () {
+  currentProcesses=$(/bin/ps aux)
   for process in "${processNames[@]}"; do
     if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
       /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${process}\" to quit"
       echo "Quit ${process}."
-    else
-      echo "${process} not running."
     fi
   done
 }
@@ -136,8 +119,7 @@ delete_files () {
 
 
 
-# Each function will only execute if the respective source array is not empty
-# or undefined.
+# Each function will only execute if the respective source array is not empty or undefined.
 if [[ -n "${processNames[*]}" ]]; then
   echo "Quitting processes (if running)..."
   quit_processes

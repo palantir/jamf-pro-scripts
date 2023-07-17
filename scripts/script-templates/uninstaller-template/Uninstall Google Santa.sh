@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Uninstall Adobe Flash.sh
+#            Name:  Uninstall Google Santa.sh
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, unloads all associated launchd tasks, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
@@ -46,19 +46,26 @@ launchDaemonCheck=$(/bin/launchctl list)
 # PROCESSES
 # A list of application processes to target for quitting. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). If no processes need to be quit, comment these array values out.
 processNames=(
-  "Adobe Flash Player Install Manager"
+  "Santa"
+  "santa.ext"
+  "santabs"
+  "santad"
 )
 
 
 # FILE PATHS
 # A list of full file paths to target for launchd unload and removal. Leave off trailing slashes from directory paths. If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
-  "/Applications/Utilities/Adobe Flash Player Install Manager.app"
-  "/Library/Internet Plug-Ins/Flash Player.plugin"
-  "/Library/Internet Plug-Ins/flashplayer.xpt"
-  "/Library/Internet Plug-Ins/PepperFlashPlayer"
-  "/Library/PreferencePanes/Flash Player.prefPane"
-  "/Library/Receipts/Adobe Flash Player.pkg"
+  "/Applications/Santa.app"
+  "/Library/Extensions/santa-driver.kext"
+  "/Library/LaunchAgents/com.google.santagui.plist"
+  "/Library/LaunchAgents/com.google.santa.plist"
+  "/Library/LaunchDaemons/com.google.santad.plist"
+  "/Library/LaunchDaemons/com.google.santa.bundleservice.plist"
+  "/private/etc/asl/com.google.santa.asl.conf"
+  "/private/etc/newsyslog.d/com.google.santa.newsyslog.conf"
+  "/usr/local/bin/santactl"
+  "/var/db/santa"
 )
 
 

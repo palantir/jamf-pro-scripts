@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Uninstall Adobe Flash.sh
+#            Name:  Uninstall Adobe AIR.sh
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, unloads all associated launchd tasks, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
@@ -43,28 +43,46 @@ launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
+# VENDOR UNINSTALLERS
+# A list of file paths for vendor-provided uninstallation tools. Note that vendor uninstaller workflows may differ greatly. Some vendors may use their own command-line tools with custom flags or other workflows to accomplish this task (that's why this script exists!), so make any necessary changes to the below commands if the uninstallation workflow isn't simply calling executable files. If the vendor did not provide an uninstaller workflow, comment these array values out.
+vendorUninstallers=(
+  "/Applications/Utilities/Adobe AIR Uninstaller.app/Contents/MacOS/Adobe AIR Installer"
+)
+
+
 # PROCESSES
 # A list of application processes to target for quitting. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). If no processes need to be quit, comment these array values out.
 processNames=(
-  "Adobe Flash Player Install Manager"
+  "Adobe AIR Application Installer"
+  "Adobe AIR Installer"
 )
 
 
 # FILE PATHS
 # A list of full file paths to target for launchd unload and removal. Leave off trailing slashes from directory paths. If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
-  "/Applications/Utilities/Adobe Flash Player Install Manager.app"
-  "/Library/Internet Plug-Ins/Flash Player.plugin"
-  "/Library/Internet Plug-Ins/flashplayer.xpt"
-  "/Library/Internet Plug-Ins/PepperFlashPlayer"
-  "/Library/PreferencePanes/Flash Player.prefPane"
-  "/Library/Receipts/Adobe Flash Player.pkg"
+  "/Applications/Adobe/Flash Player/AddIns/airappinstaller"
+  "/Applications/Utilities/Adobe AIR Application Installer.app"
+  "/Applications/Utilities/Adobe AIR Uninstaller.app"
+  "/Library/Frameworks/Adobe AIR.framework"
 )
 
 
 
 ########## function-ing ##########
 
+
+
+# Runs vendor uninstallers.
+run_vendor_uninstallers () {
+  for uninstaller in "${vendorUninstallers[@]}"; do
+    if [[ -e "$uninstaller" ]]; then
+      ./"${uninstaller}" -uninstall
+    else
+      echo "Vendor uninstaller not found at ${uninstaller}."
+    fi
+  done
+}
 
 
 # Quits target processes.
@@ -115,10 +133,17 @@ delete_files () {
 
 
 # Each function will only execute if the respective source array is not empty or undefined.
+if [[ -n "${vendorUninstallers[*]}" ]]; then
+  echo "Running vendor uninstallers..."
+  run_vendor_uninstallers
+fi
+
+
 if [[ -n "${processNames[*]}" ]]; then
   echo "Quitting processes (if running)..."
   quit_processes
 fi
+
 
 if [[ -n "${resourceFiles[*]}" ]]; then
   echo "Removing files (if present)..."

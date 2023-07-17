@@ -2,7 +2,7 @@
 
 ###
 #
-#            Name:  Uninstall Adobe Flash.sh
+#            Name:  Uninstall Adobe Application.sh
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, unloads all associated launchd tasks, then removes all associated files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
@@ -33,6 +33,12 @@
 
 
 
+# Jamf Pro script parameter: "Adobe Application Name"
+adobeAppName="${4}"
+# Jamf Pro script parameter: "Adobe Application Year"
+adobeAppYear="${5}"
+
+
 # ENVIRONMENT VARIABLES (leave as-is)
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
@@ -43,22 +49,13 @@ launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
 launchDaemonCheck=$(/bin/launchctl list)
 
 
-# PROCESSES
-# A list of application processes to target for quitting. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). If no processes need to be quit, comment these array values out.
-processNames=(
-  "Adobe Flash Player Install Manager"
-)
-
-
 # FILE PATHS
 # A list of full file paths to target for launchd unload and removal. Leave off trailing slashes from directory paths. If no files need to be manually deleted, comment these array values out.
 resourceFiles=(
-  "/Applications/Utilities/Adobe Flash Player Install Manager.app"
-  "/Library/Internet Plug-Ins/Flash Player.plugin"
-  "/Library/Internet Plug-Ins/flashplayer.xpt"
-  "/Library/Internet Plug-Ins/PepperFlashPlayer"
-  "/Library/PreferencePanes/Flash Player.prefPane"
-  "/Library/Receipts/Adobe Flash Player.pkg"
+  "/Applications/Adobe ${adobeAppName} CC ${adobeAppYear}/Adobe ${adobeAppName} CC ${adobeAppYear}.app"
+  "/Applications/Adobe ${adobeAppName} CC ${adobeAppYear}"
+  "/Applications/Adobe ${adobeAppName} ${adobeAppYear}/Adobe ${adobeAppName} ${adobeAppYear}.app"
+  "/Applications/Adobe ${adobeAppName} ${adobeAppYear}"
 )
 
 
@@ -67,15 +64,12 @@ resourceFiles=(
 
 
 
-# Quits target processes.
-quit_processes () {
-  currentProcesses=$(/bin/ps aux)
-  for process in "${processNames[@]}"; do
-    if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
-      /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${process}\" to quit"
-      echo "Quit ${process}."
-    fi
-  done
+# Exits if any required Jamf Pro arguments are undefined.
+check_jamf_pro_arguments () {
+  if [ -z "$adobeAppName" ] || [ -z "$adobeAppYear" ]; then
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
 }
 
 
@@ -114,11 +108,11 @@ delete_files () {
 
 
 
+# Check script prerequisites.
+check_jamf_pro_arguments
+
+
 # Each function will only execute if the respective source array is not empty or undefined.
-if [[ -n "${processNames[*]}" ]]; then
-  echo "Quitting processes (if running)..."
-  quit_processes
-fi
 
 if [[ -n "${resourceFiles[*]}" ]]; then
   echo "Removing files (if present)..."
