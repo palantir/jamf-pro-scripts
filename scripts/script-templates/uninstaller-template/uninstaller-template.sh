@@ -34,12 +34,10 @@
 
 
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
-launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
-launchDaemonCheck=$(/bin/launchctl list)
 
 
 
@@ -81,10 +79,10 @@ delete_file () {
       if echo "${1}" | /usr/bin/grep -q ".plist"; then
         # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
         justThePlist=$(/usr/bin/basename "${1}" | /usr/bin/awk -F.plist '{print $1}')
-        if echo "$launchAgentCheck" | /usr/bin/grep -q "$justThePlist"; then
+        if /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "${1}"
           echo "Unloaded LaunchAgent at ${1}."
-        elif echo "$launchDaemonCheck" | /usr/bin/grep -q "$justThePlist"; then
+        elif /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
           /bin/launchctl unload "${1}"
           echo "Unloaded LaunchDaemon at ${1}."
         fi
