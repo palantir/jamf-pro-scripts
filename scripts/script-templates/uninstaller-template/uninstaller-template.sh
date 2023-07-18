@@ -6,7 +6,7 @@
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, then removes all associated target files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2023-07-17
+#   Last Modified:  2023-07-18
 #         Version:  2.0
 #
 #
@@ -73,29 +73,29 @@ quit_process () {
 # Removes specified file.
 delete_file () {
 
-    # Check if file exists.
-    if [ -e "${1}" ]; then
-      # Check if file is a plist.
-      if echo "${1}" | /usr/bin/grep -q ".plist"; then
-        # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
-        justThePlist=$(/usr/bin/basename "${1}" | /usr/bin/awk -F.plist '{print $1}')
-        if /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
-          /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "${1}"
-          echo "Unloaded LaunchAgent at ${1}."
-        elif /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
-          /bin/launchctl unload "${1}"
-          echo "Unloaded LaunchDaemon at ${1}."
-        fi
+  # Check if file exists.
+  if [ -e "${1}" ]; then
+    # Check if file is a plist.
+    if echo "${1}" | /usr/bin/grep -q ".plist"; then
+      # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
+      justThePlist=$(/usr/bin/basename "${1}" | /usr/bin/awk -F.plist '{print $1}')
+      if /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
+        /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "${1}"
+        echo "Unloaded LaunchAgent at ${1}."
+      elif /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
+        /bin/launchctl unload "${1}"
+        echo "Unloaded LaunchDaemon at ${1}."
       fi
-      # Remove system immutable flag if present.
-      if /bin/ls -ldO "${1}" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
-        /usr/bin/chflags -R noschg "${1}"
-        echo "Removed system immutable flag for ${1}."
-      fi
-      # Remove file.
-      /bin/rm -rf "${1}"
-      echo "Removed ${1}."
     fi
+    # Remove system immutable flag if present.
+    if /bin/ls -ldO "${1}" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
+      /usr/bin/chflags -R noschg "${1}"
+      echo "Removed system immutable flag for ${1}."
+    fi
+    # Remove file.
+    /bin/rm -rf "${1}"
+    echo "Removed ${1}."
+  fi
 
 }
 
