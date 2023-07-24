@@ -55,7 +55,7 @@ loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirecto
 # Exit if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
 
-  if [ -z "$process" ] || [ -z "$targetFile" ]; then
+  if [ -z "$appProcess" ] || [ -z "$appFilePath" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
