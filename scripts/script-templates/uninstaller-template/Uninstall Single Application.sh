@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Uninstall Single Application.sh
-#     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, unloads all associated launchd tasks, then removes all associated files.
+#     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, then removes all associated target files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2023-05-02
-#         Version:  1.3.10pal1
+#   Last Modified:  2023-07-24
+#         Version:  2.0pal1
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,24 +33,18 @@
 
 
 
-# ENVIRONMENT VARIABLES (leave as-is)
+# Jamf Pro script parameter: "App Process"
+appProcess="${4}"
+# Jamf Pro script parameter: "App File Path"
+# Should be full path to the application, e.g. "/System/Applications/Chess.app"
+appFilePath="${5}"
+
+
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
+loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
-launchAgentCheck=$(/bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list)
-launchDaemonCheck=$(/bin/launchctl list)
-
-
-# PROCESSES
-# A list of application processes to target for quitting. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). If no processes need to be quit, comment these array values out.
-process="${4}" # Jamf Pro script parameter: "App Process"
-
-
-# FILE PATHS
-# A list of full file paths to target for launchd unload and removal. Leave off trailing slashes from directory paths. If no files need to be manually deleted, comment these array values out.
-targetFile="${5}" # Jamf Pro script parameter: "App File Path"; should be full path to the application, e.g. "/System/Applications/Chess.app"
 
 
 
@@ -60,48 +54,54 @@ targetFile="${5}" # Jamf Pro script parameter: "App File Path"; should be full p
 
 # Exit if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
-  if [ -z "$process" ] || [ -z "$targetFile" ]; then
+
+  if [ -z "$appProcess" ] || [ -z "$appFilePath" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
+
 }
 
 
-# Quit target processes.
-quit_processes () {
+# Quits specified process.
+quit_process () {
+
   currentProcesses=$(/bin/ps aux)
-  if echo "$currentProcesses" | /usr/bin/grep -q "$process"; then
-    /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${process}\" to quit"
-    echo "Quit ${process}."
+  if echo "$currentProcesses" | /usr/bin/grep -q "${1}"; then
+    /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${1}\" to quit"
+    echo "Quit ${1}."
   fi
+
 }
 
 
-# Remove all remaining resource files.
-delete_files () {
+# Removes specified file.
+delete_file () {
+
   # Check if file exists.
-  if [ -e "$targetFile" ]; then
+  if [ -e "${1}" ]; then
     # Check if file is a plist.
-    if echo "$targetFile" | /usr/bin/grep -q ".plist"; then
+    if echo "${1}" | /usr/bin/grep -q ".plist"; then
       # If plist is loaded as LaunchAgent or LaunchDaemon, unload it.
-      justThePlist=$(/usr/bin/basename "$targetFile" | /usr/bin/awk -F.plist '{print $1}')
-      if echo "$launchAgentCheck" | /usr/bin/grep -q "$justThePlist"; then
-        /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "$targetFile"
-        echo "Unloaded LaunchAgent at ${targetFile}."
-      elif echo "$launchDaemonCheck" | /usr/bin/grep -q "$justThePlist"; then
-        /bin/launchctl unload "$targetFile"
-        echo "Unloaded LaunchDaemon at ${targetFile}."
+      justThePlist=$(/usr/bin/basename "${1}" | /usr/bin/awk -F.plist '{print $1}')
+      if /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
+        /bin/launchctl asuser "$loggedInUserUID" /bin/launchctl unload "${1}"
+        echo "Unloaded LaunchAgent at ${1}."
+      elif /bin/launchctl list | /usr/bin/grep -q "$justThePlist"; then
+        /bin/launchctl unload "${1}"
+        echo "Unloaded LaunchDaemon at ${1}."
       fi
     fi
     # Remove system immutable flag if present.
-    if /bin/ls -ldO "$targetFile" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
-      /usr/bin/chflags -R noschg "$targetFile"
-      echo "Removed system immutable flag for ${targetFile}."
+    if /bin/ls -ldO "${1}" | /usr/bin/awk '{print $5}' | /usr/bin/grep -q "schg"; then
+      /usr/bin/chflags -R noschg "${1}"
+      echo "Removed system immutable flag for ${1}."
     fi
     # Remove file.
-    /bin/rm -rf "$targetFile"
-    echo "Removed ${targetFile}."
+    /bin/rm -rf "${1}"
+    echo "Removed ${1}."
   fi
+
 }
 
 
@@ -114,16 +114,14 @@ delete_files () {
 check_jamf_pro_arguments
 
 
-# Each function will only execute if the respective source array is not empty or undefined.
-if [ -n "${process}" ]; then
-  echo "Quitting process (if running)..."
-  quit_processes
-fi
+# PROCESSES
+# For each process related to the target product, run the quit_process function calling that process name to quit it. Names should match what is displayed for the process in Activity Monitor (e.g. "Chess", not "Chess.app"). Call the function again for each additional process. If no processes need to be quit, comment out or remove this line.
+quit_process "$appProcess"
 
-if [ -n "${targetFile}" ]; then
-  echo "Removing files (if present)..."
-  delete_files
-fi
+
+# FILE PATHS
+# For each file and/or folder related to the target product, run the delete_file function calling that file name. Leave off trailing slashes from directory paths. Call the function again for each additional file. If no files need to be deleted, comment out or remove this line.
+delete_file "$appFilePath"
 
 
 
