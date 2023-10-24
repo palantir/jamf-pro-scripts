@@ -36,12 +36,12 @@
 startupDiskName="${4}"
 # Jamf Pro script parameter: "New Volume Name"
 newVolumeName="${5}"
-# Jamf Pro script parameter: "New Volume Size"
-# Enter a number of gigabytes.
-newVolumeSize="${6}"
 # Jamf Pro script parameter: "New Volume APFS Format"
 # See diskutil listFilesystems for expected formats.
-newVolumeAPFSFormat="${7}"
+newVolumeAPFSFormat="${6}"
+# Jamf Pro script parameter: "New Volume Quota (GB) (optional)"
+# Enter a number of gigabytes to set the quota for the new volume. If no number is specified, the volume shares all available space with other volumes in the target container.
+newVolumeQuota="${7}"
 
 
 
@@ -52,7 +52,7 @@ newVolumeAPFSFormat="${7}"
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
 
-  if [ -z "$startupDiskName" ] || [ -z "$newVolumeName" ] || [ -z "$newVolumeSize" ] || [ -z "$newVolumeAPFSFormat" ]; then
+  if [ -z "$startupDiskName" ] || [ -z "$newVolumeName" ] || [ -z "$newVolumeAPFSFormat" ]; then
     echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
     exit 74
   fi
@@ -84,17 +84,25 @@ check_volume () {
 }
 
 
-# Creates volume with specified name, format, and size in gigabytes (resizes startup disk for older filesystems).
+# Creates volume with specified name, format, and quota size in gigabytes (optional).
 add_volume () {
 
-  /usr/sbin/diskutil \
-    apfs addVolume \
-    "$startupDiskDevice" \
-    "$newVolumeAPFSFormat" \
-    "$newVolumeName" \
-    -quota "${newVolumeSize}G"
-  echo "Volume ${newVolumeName} created (${newVolumeSize}G), formatted as ${newVolumeAPFSFormat}."
-  sleep 5
+  if [ -n "${newVolumeQuota}" ]; then
+    /usr/sbin/diskutil \
+      apfs addVolume \
+      "${1}" \
+      "${2}" \
+      "${3}" \
+      -quota "${newVolumeQuota}G"
+    echo "Volume ${3} created (${newVolumeQuota} GB), formatted as ${2}."
+  else
+    /usr/sbin/diskutil \
+      apfs addVolume \
+      "${1}" \
+      "${2}" \
+      "${3}"
+    echo "Volume ${3} created (sharing all available container space with ${startupDiskName}), formatted as ${2}."
+  fi
 
 }
 
@@ -115,7 +123,7 @@ startupDiskInfo=$(/usr/sbin/diskutil info "$startupDiskName")
 fileSystemPersonality=$(echo "$startupDiskInfo" | /usr/bin/awk -F: '/File System Personality/ {print $NF}' | /usr/bin/sed 's/^ *//')
 if echo "$fileSystemPersonality" | /usr/bin/grep -q "APFS"; then
   startupDiskDevice=$(echo "$startupDiskInfo" | /usr/bin/awk '/Part of Whole/ {print $4}')
-  add_volume
+  add_volume "$startupDiskDevice" "$newVolumeAPFSFormat" "$newVolumeName"
 else
   echo "❌ ERROR: Unsupported file system (${fileSystemPersonality}), unable to proceed."
   exit 1
