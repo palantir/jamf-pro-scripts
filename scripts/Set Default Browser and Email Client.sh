@@ -53,10 +53,10 @@ lsregisterPath="/System/Library/Frameworks/CoreServices.framework/Versions/A/Fra
 # Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
 
-    if [ -z "$browserBundleID" ] || [ -z "$emailBundleID" ]; then
-      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
-      exit 74
-    fi
+  if [ -z "$browserBundleID" ] || [ -z "$emailBundleID" ]; then
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
 
 }
 
