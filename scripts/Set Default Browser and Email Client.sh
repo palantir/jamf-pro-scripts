@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 #
 #            Name:  Set Default Browser and Email Client.sh
-#     Description:  Sets default browser and email client for currently logged-in user.
+#     Description:  Sets default browser and email client for currently logged-in user by writing to the account's LaunchServices plist. In modern macOS releases, a prompt logout or restart is required to prevent these settings from being reverted by the system. This script is intended to be run during new device setup workflows; since LSHandlers is cleared out when the script is run, all user-defined default applications are reset in the process of setting these new defaults.
 #         Created:  2017-09-06
-#   Last Modified:  2020-07-08
-#         Version:  1.4.3
+#   Last Modified:  2023-11-13
+#         Version:  1.5
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -32,31 +32,16 @@
 
 
 
-# Jamf Pro script parameter "Browser Agent String"
-# Should be in the format domain.vendor.app (e.g. com.apple.safari).
-browserAgentString="$4"
-# Jamf Pro script parameter "Email Agent String"
-# Should be in the format domain.vendor.app (e.g. com.apple.mail).
-emailAgentString="$5"
+# To obtain identifiers for your desired default applications, run: codesign --display --requirements - /path/to/app
+# Jamf Pro script parameter "Browser Bundle Identifier"
+browserBundleID="${4}"
+# Jamf Pro script parameter "Email Bundle Identifier"
+emailBundleID="${5}"
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
-loggedInUserHome=$(/usr/bin/dscl . -read "/Users/$loggedInUser" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
-launchServicesPlistFolder="$loggedInUserHome/Library/Preferences/com.apple.LaunchServices"
-launchServicesPlist="$launchServicesPlistFolder/com.apple.launchservices.secure.plist"
+loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+launchServicesPlistFolder="${loggedInUserHome}/Library/Preferences/com.apple.LaunchServices"
+launchServicesPlist="${launchServicesPlistFolder}/com.apple.launchservices.secure.plist"
 plistbuddyPath="/usr/libexec/PlistBuddy"
-plistbuddyPreferences=(
-  "Add :LSHandlers:0:LSHandlerRoleAll string $browserAgentString"
-  "Add :LSHandlers:0:LSHandlerURLScheme string http"
-  "Add :LSHandlers:1:LSHandlerRoleAll string $browserAgentString"
-  "Add :LSHandlers:1:LSHandlerURLScheme string https"
-  "Add :LSHandlers:2:LSHandlerRoleViewer string $browserAgentString"
-  "Add :LSHandlers:2:LSHandlerContentType string public.html"
-  "Add :LSHandlers:3:LSHandlerRoleViewer string $browserAgentString"
-  "Add :LSHandlers:3:LSHandlerContentType string public.url"
-  "Add :LSHandlers:4:LSHandlerRoleViewer string $browserAgentString"
-  "Add :LSHandlers:4:LSHandlerContentType string public.xhtml"
-  "Add :LSHandlers:5:LSHandlerRoleAll string $emailAgentString"
-  "Add :LSHandlers:5:LSHandlerURLScheme string mailto"
-)
 lsregisterPath="/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister"
 
 
@@ -66,17 +51,24 @@ lsregisterPath="/System/Library/Frameworks/CoreServices.framework/Versions/A/Fra
 
 
 # Exits if any required Jamf Pro arguments are undefined.
-function check_jamf_pro_arguments {
-  jamfProArguments=(
-    "$browserAgentString"
-    "$emailAgentString"
-  )
-  for argument in "${jamfProArguments[@]}"; do
-    if [[ -z "$argument" ]]; then
+check_jamf_pro_arguments () {
+
+    if [ -z "$browserBundleID" ] || [ -z "$emailBundleID" ]; then
       echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
       exit 74
     fi
-  done
+
+}
+
+
+# Exits if root is the currently logged-in user, or no logged-in user is detected.
+check_logged_in_user () {
+
+  if [ "$loggedInUser" = "root" ] || [ -z "$loggedInUser" ]; then
+    echo "Nobody is logged in, so this script cannot be run."
+    exit 0
+  fi
+
 }
 
 
@@ -85,18 +77,19 @@ function check_jamf_pro_arguments {
 
 
 
-# Exit if any required Jamf Pro arguments are undefined.
+# Verify script prerequisites.
 check_jamf_pro_arguments
+check_logged_in_user
 
 
-# Clear out LSHandlers array data from $launchServicesPlist, or create new plist if file does not exist.
-if [[ -e "$launchServicesPlist" ]]; then
+# Clear out LSHandlers array data from LaunchServices plist, or create new plist if file does not exist.
+if [ -e "$launchServicesPlist" ]; then
   "$plistbuddyPath" -c "Delete :LSHandlers" "$launchServicesPlist"
-  echo "Reset LSHandlers array from $launchServicesPlist."
+  echo "Reset LSHandlers array in ${launchServicesPlist}."
 else
   /bin/mkdir -p "$launchServicesPlistFolder"
   "$plistbuddyPath" -c "Save" "$launchServicesPlist"
-  echo "Created $launchServicesPlist."
+  echo "Created ${launchServicesPlist}."
 fi
 
 
@@ -106,24 +99,28 @@ echo "Initialized LSHandlers array."
 
 
 # Set handler for each URL scheme and content type to specified browser and email client.
-for plistbuddyCommand in "${plistbuddyPreferences[@]}"; do
-  "$plistbuddyPath" -c "$plistbuddyCommand" "$launchServicesPlist"
-  if [[ "$plistbuddyCommand" = *"$browserAgentString"* ]] || [[ "$plistbuddyCommand" = *"$emailAgentString"* ]]; then
-    arrayEntry=$(echo "$plistbuddyCommand" | /usr/bin/awk -F: '{print $2 ":" $3 ":" $4}' | /usr/bin/sed 's/ .*//')
-    prefLabel=$(echo "$plistbuddyCommand" | /usr/bin/awk '{print $4}')
-    echo "Set $arrayEntry to $prefLabel."
-  fi
-done
+"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerRoleAll string ${browserBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerURLScheme string http"
+"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerRoleAll string ${browserBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerURLScheme string https"
+"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerRoleViewer string ${browserBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerContentType string public.html"
+"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerRoleViewer string ${browserBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerContentType string public.url"
+"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerRoleViewer string ${browserBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerContentType string public.xhtml"
+"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerRoleAll string ${emailBundleID}"
+"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerURLScheme string mailto"
 
 
-# Fix permissions on $launchServicesPlistFolder.
+# Fix ownership on logged-in user's LaunchServices plist folder.
 /usr/sbin/chown -R "$loggedInUser" "$launchServicesPlistFolder"
-echo "Fixed permissions on $launchServicesPlistFolder."
+echo "Set folder ownership on ${launchServicesPlistFolder} to ${loggedInUser}."
 
 
 # Reset Launch Services database.
 "$lsregisterPath" -kill -r -domain local -domain system -domain user
-echo "Reset Launch Services database. A restart may also be required for these new default client changes to take effect."
+echo "Reset Launch Services database. A prompt logout or restart is required for these new default client settings to take effect."
 
 
 
