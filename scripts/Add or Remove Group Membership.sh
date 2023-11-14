@@ -1,13 +1,12 @@
-#!/bin/zsh
+#!/bin/sh
 
 ###
 #
-#            Name:  Add or Remove Group Membership.zsh
-#     Description:  Adds target user or group to specified group membership, or
-#                   removes said membership.
+#            Name:  Add or Remove Group Membership.sh
+#     Description:  Adds target user or group to specified group membership, or removes said membership.
 #         Created:  2016-06-06
-#   Last Modified:  2021-02-08
-#         Version:  4.0
+#   Last Modified:  2023-11-13
+#         Version:  4.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -34,16 +33,16 @@
 
 
 # Jamf Pro script parameter: "Target ID"
-targetID="$4"
+targetID="${4}"
 # Jamf Pro script parameter: "Target Type"
 # Must be either "user" or "group".
-targetType="$5"
+targetType="${5}"
 # Jamf Pro script parameter: "Target Membership"
 # Enter the name of a user group.
-targetMembership="$6"
+targetMembership="${6}"
 # Jamf Pro script parameter: "Script Action"
 # Must be either "add" or "remove".
-scriptAction="$7"
+scriptAction="${7}"
 
 
 
@@ -52,19 +51,13 @@ scriptAction="$7"
 
 
 # Exits if any required Jamf Pro arguments are undefined.
-function check_jamf_pro_arguments {
-  jamfProArguments=(
-    "$targetID"
-    "$targetType"
-    "$targetMembership"
-    "$scriptAction"
-  )
-  for argument in "${jamfProArguments[@]}"; do
-    if [[ -z "$argument" ]]; then
-      echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
-      exit 74
-    fi
-  done
+check_jamf_pro_arguments () {
+
+  if [ -z "$targetID" ] || [ -z "$targetType" ] || [ -z "$targetMembership" ] || [ -z "$scriptAction" ]; then
+    echo "❌ ERROR: Undefined Jamf Pro argument, unable to proceed."
+    exit 74
+  fi
+
 }
 
 
@@ -73,14 +66,14 @@ function check_jamf_pro_arguments {
 
 
 
-# Verify script prrequisites.
+# Verify script prerequisites.
 check_jamf_pro_arguments
 
 
 # Populate binary arguments for specified script action, or exit if undefined.
-if [[ "$scriptAction" = "add" ]]; then
+if [ "$scriptAction" = "add" ]; then
   actionFlag="a"
-elif [[ "$scriptAction" = "remove" ]]; then
+elif [ "$scriptAction" = "remove" ]; then
   actionFlag="d"
 else
   echo "❌ ERROR: Script Action is unexpected value, unable to proceed. Please check Script Action parameter in Jamf Pro policy."
@@ -89,27 +82,27 @@ fi
 
 
 # Exit if Target Type is an incorrect value.
-if [[ "$targetType" != "user" ]] && [[ "$targetType" != "group" ]]; then
-  echo "❌ ERROR: Target Type $targetType is unexpected value, unable to proceed. Please check Target Type parameter in Jamf Pro policy."
+if [ "$targetType" != "user" ] && [ "$targetType" != "group" ]; then
+  echo "❌ ERROR: Target Type ${targetType} is unexpected value, unable to proceed. Please check Target Type parameter in Jamf Pro policy."
   exit 1
 fi
 
 
 # Exit if specified group does not exist.
 if ! /usr/sbin/dseditgroup -o read "$targetMembership" 1>"/dev/null"; then
-  echo "Specified group ($targetMembership) does not exist, no action required."
+  echo "Specified group (${targetMembership}) does not exist, no action required."
   exit 0
-elif [[ "$targetType" = "user" ]]; then
+elif [ "$targetType" = "user" ]; then
   if /usr/sbin/dseditgroup -o checkmember -m "$targetID" "$targetMembership"; then
     # If action is add, exit if target user is already in the specified group.
-    if [[ "$scriptAction" = "add" ]]; then
-      echo "Target user is already a member of $targetMembership, no action required."
+    if [ "$scriptAction" = "add" ]; then
+      echo "Target user is already a member of ${targetMembership}, no action required."
       exit 0
     fi
   else
     # If action is remove, exit if target user is not in the specified group.
-    if [[ "$scriptAction" = "remove" ]]; then
-      echo "Target user is not a member of $targetMembership, no action required."
+    if [ "$scriptAction" = "remove" ]; then
+      echo "Target user is not a member of ${targetMembership}, no action required."
       exit 0
     fi
   fi
@@ -121,7 +114,7 @@ fi
   -"$actionFlag" "$targetID" \
   -t "$targetType" \
   "$targetMembership"
-echo "Modified $targetID group membership for $targetMembership (action: $scriptAction)."
+echo "Modified ${targetID} group membership for ${targetMembership} (action: ${scriptAction})."
 
 
 exit 0
