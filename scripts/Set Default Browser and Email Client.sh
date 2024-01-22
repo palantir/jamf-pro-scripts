@@ -5,7 +5,7 @@
 #            Name:  Set Default Browser and Email Client.sh
 #     Description:  Sets default browser and email client for currently logged-in user by writing to the account's LaunchServices plist. In modern macOS releases, a prompt logout or restart is required to prevent these settings from being reverted by the system. This script is intended to be run during new device setup workflows; since LSHandlers is cleared out when the script is run, all user-defined default applications are reset in the process of setting these new defaults.
 #         Created:  2017-09-06
-#   Last Modified:  2023-11-13
+#   Last Modified:  2024-01-22
 #         Version:  1.5
 #
 #
@@ -99,18 +99,18 @@ echo "Initialized LSHandlers array."
 
 
 # Set handler for each URL scheme and content type to specified browser and email client.
-"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerRoleAll string ${browserBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerURLScheme string http"
-"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerRoleAll string ${browserBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerURLScheme string https"
-"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerRoleViewer string ${browserBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerContentType string public.html"
-"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerRoleViewer string ${browserBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerContentType string public.url"
-"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerRoleViewer string ${browserBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerContentType string public.xhtml"
-"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerRoleAll string ${emailBundleID}"
-"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerURLScheme string mailto"
+"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerRoleAll string ${browserBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:0:LSHandlerURLScheme string http" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerRoleAll string ${browserBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:1:LSHandlerURLScheme string https" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerRoleViewer string ${browserBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:2:LSHandlerContentType string public.html" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerRoleViewer string ${browserBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:3:LSHandlerContentType string public.url" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerRoleViewer string ${browserBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:4:LSHandlerContentType string public.xhtml" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerRoleAll string ${emailBundleID}" "$launchServicesPlist"
+"$plistbuddyPath" -c "Add :LSHandlers:5:LSHandlerURLScheme string mailto" "$launchServicesPlist"
 
 
 # Fix ownership on logged-in user's LaunchServices plist folder.
