@@ -5,8 +5,8 @@
 #            Name:  Kernel Extensions (Third-Party).sh
 #     Description:  Displays all third-party kernel extensions installed.
 #         Created:  2016-08-17
-#   Last Modified:  2020-07-08
-#         Version:  1.2.1
+#   Last Modified:  2024-05-30
+#         Version:  2.0
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.
@@ -28,20 +28,12 @@
 
 
 
-########## variable-ing ##########
-
-
-
-kextList=$(/usr/sbin/kextstat -l | /usr/bin/grep -v 'com.apple' | /usr/bin/awk '{print $6}' | /usr/bin/sort)
-
-
-
 ########## main process ##########
 
 
 
-# Report result.
-echo "<result>$kextList</result>"
+# Report results.
+echo "<result>$(/usr/bin/kmutil showloaded --list-only 2>"/dev/null" | /usr/bin/grep -v 'com.apple' | /usr/bin/awk '{print $6}' | /usr/bin/sort)</result>"
 
 
 
