@@ -2,14 +2,14 @@
 
 ###
 #
-#            Name:  Kernel Extensions (Third-Party).sh
-#     Description:  Displays all third-party kernel extensions installed.
-#         Created:  2016-08-17
+#            Name:  System Extensions.sh
+#     Description:  Lists all system extensions by running systemextensionsctl list.
+#         Created:  2024-02-06
 #   Last Modified:  2024-05-30
-#         Version:  2.0
+#         Version:  1.0.1
 #
 #
-# Copyright 2016 Palantir Technologies, Inc.
+# Copyright 2024 Palantir Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 
 # Report results.
-echo "<result>$(/usr/bin/kmutil showloaded --list-only 2>"/dev/null" | /usr/bin/grep -v 'com.apple' | /usr/bin/awk '{print $6}' | /usr/bin/sort)</result>"
+echo "<result>$(/usr/bin/systemextensionsctl list)</result>"
 
 
 
