@@ -2,14 +2,14 @@
 
 ###
 #
-#            Name:  Kernel Extensions (Third-Party).sh
-#     Description:  Displays all enabled third-party kernel extensions.
-#         Created:  2016-08-17
+#            Name:  Wi-Fi Network.sh
+#     Description:  Displays the current Wi-Fi network for the default network adapter (en0).
+#         Created:  2024-10-17
 #   Last Modified:  2024-11-15
-#         Version:  2.0.0.1
+#         Version:  1.0.1
 #
 #
-# Copyright 2016 Palantir Technologies, Inc.
+# Copyright 2024 Palantir Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 
 # Report results.
-echo "<result>$(/usr/bin/kmutil showloaded --list-only 2>"/dev/null" | /usr/bin/grep -v 'com.apple' | /usr/bin/awk '{print $6}' | /usr/bin/sort)</result>"
+echo "<result>$(/usr/sbin/networksetup -getairportnetwork en0 2>"/dev/null" | /usr/bin/awk -F 'Current Wi-Fi Network: ' '{print $2}')</result>"
 
 
 

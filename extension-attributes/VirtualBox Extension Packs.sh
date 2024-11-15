@@ -2,14 +2,14 @@
 
 ###
 #
-#            Name:  Kernel Extensions (Third-Party).sh
-#     Description:  Displays all enabled third-party kernel extensions.
-#         Created:  2016-08-17
+#            Name:  VirtualBox Extension Packs.sh
+#     Description:  Reports whether any VirtualBox extension packs are installed.
+#         Created:  2019-12-17
 #   Last Modified:  2024-11-15
-#         Version:  2.0.0.1
+#         Version:  1.0.3
 #
 #
-# Copyright 2016 Palantir Technologies, Inc.
+# Copyright 2019 Palantir Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,12 +28,29 @@
 
 
 
+########## variable-ing ##########
+
+
+
+VBoxManagePath="/Applications/VirtualBox.app/Contents/MacOS/VBoxManage"
+extpackCheck=""
+
+
+
 ########## main process ##########
 
 
 
-# Report results.
-echo "<result>$(/usr/bin/kmutil showloaded --list-only 2>"/dev/null" | /usr/bin/grep -v 'com.apple' | /usr/bin/awk '{print $6}' | /usr/bin/sort)</result>"
+if [ -e "$VBoxManagePath" ]; then
+  if [ "$("$VBoxManagePath" list extpacks | /usr/bin/awk '/Extension Packs/ {print $NF}')" -gt 0 ]; then
+    extpackCheck="installed"
+  fi
+fi
+
+
+
+
+echo "<result>${extpackCheck}</result>"
 
 
 
