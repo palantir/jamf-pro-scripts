@@ -3,10 +3,10 @@
 ###
 #
 #            Name:  Kernel Extensions (Third-Party).sh
-#     Description:  Displays all third-party kernel extensions installed.
+#     Description:  Displays all enabled third-party kernel extensions.
 #         Created:  2016-08-17
-#   Last Modified:  2024-05-30
-#         Version:  2.0
+#   Last Modified:  2024-11-15
+#         Version:  2.0.0.1
 #
 #
 # Copyright 2016 Palantir Technologies, Inc.

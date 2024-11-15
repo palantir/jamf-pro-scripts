@@ -3,10 +3,10 @@
 ###
 #
 #            Name:  System Extensions.sh
-#     Description:  Lists all system extensions by running systemextensionsctl list.
+#     Description:  Lists all enabled system extensions.
 #         Created:  2024-02-06
-#   Last Modified:  2024-05-30
-#         Version:  1.0.1
+#   Last Modified:  2024-11-15
+#         Version:  1.0.2
 #
 #
 # Copyright 2024 Palantir Technologies, Inc.
@@ -33,7 +33,7 @@
 
 
 # Report results.
-echo "<result>$(/usr/bin/systemextensionsctl list)</result>"
+echo "<result>$(/usr/bin/systemextensionsctl list | /usr/bin/awk '/ enabled/ {print $4}' | /usr/bin/sort)</result>"
 
 
 
