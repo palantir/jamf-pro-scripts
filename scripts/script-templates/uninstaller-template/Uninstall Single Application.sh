@@ -33,6 +33,13 @@
 
 
 
+# Jamf Pro script parameter: "App Process"
+appProcess="${4}"
+# Jamf Pro script parameter: "App File Path"
+# Should be full path to the application, e.g. "/System/Applications/Chess.app". If referencing the current user's home folder path, replace "~/" with "LOGGED_IN_USER_HOME/", e.g. "LOGGED_IN_USER_HOME/Applications/Google Chrome.app".
+appFilePath="${5}"
+
+
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
@@ -40,19 +47,12 @@ loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
 
 
-# Jamf Pro script parameter: "App Process"
-appProcess="${4}"
-# Jamf Pro script parameter: "App File Path"
-# Should be full path to the application, e.g. "/System/Applications/Chess.app"
-appFilePath="${5}"
-
-
 
 ########## function-ing ##########
 
 
 
-# Exit if any required Jamf Pro arguments are undefined.
+# Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
 
   if [ -z "$appProcess" ] || [ -z "$appFilePath" ]; then
@@ -70,6 +70,17 @@ quit_process () {
   if echo "$currentProcesses" | /usr/bin/grep -q "${1}"; then
     /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${1}\" to quit"
     echo "Quit ${1}."
+  fi
+
+}
+
+
+# Takes LOGGED_IN_USER_HOME placeholder and replaces with $loggedInUserHome.
+convert_path_to_home () {
+
+  if echo "$appFilePath" | /usr/bin/grep -q "LOGGED_IN_USER_HOME/"; then
+    appFilePath=$(echo "$appFilePath" | /usr/bin/sed "s|LOGGED_IN_USER_HOME|$loggedInUserHome|")
+    echo "Converted input to file path: ${appFilePath}"
   fi
 
 }
@@ -120,7 +131,8 @@ quit_process "$appProcess"
 
 
 # FILE PATHS
-# For each file and/or folder related to the target product, run the delete_file function calling that file name. Leave off trailing slashes from directory paths. Call the function again for each additional file. If no files need to be deleted, comment out or remove this line.
+# For each file and/or folder related to the target product, run the delete_file function calling that file name. Leave off trailing slashes from directory paths. Call the function again for each additional file. If no files need to be deleted, comment out or remove this line. Replaces LOGGED_IN_USER_HOME placeholder with $loggedInUsrHome as needed.
+convert_path_to_home
 delete_file "$appFilePath"
 
 
