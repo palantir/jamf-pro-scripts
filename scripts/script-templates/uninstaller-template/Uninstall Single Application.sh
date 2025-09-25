@@ -6,8 +6,8 @@
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, then removes all associated target files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2023-07-24
-#         Version:  2.0pal1
+#   Last Modified:  2025-09-25
+#         Version:  2.0pal2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -33,18 +33,18 @@
 
 
 
-# Jamf Pro script parameter: "App Process"
-appProcess="${4}"
-# Jamf Pro script parameter: "App File Path"
-# Should be full path to the application, e.g. "/System/Applications/Chess.app"
-appFilePath="${5}"
-
-
 loggedInUser=$(/usr/bin/stat -f%Su "/dev/console")
 loggedInUserUID=$(/usr/bin/id -u "$loggedInUser")
 # For any file paths used later in this script, use "$loggedInUserHome" for the current user's home folder path. Don't just assume the home folder is at /Users/${loggedInUser}.
 # shellcheck disable=SC2034
 loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirectory | /usr/bin/awk '{print $NF}')
+
+
+# Jamf Pro script parameter: "App Process"
+appProcess="${4}"
+# Jamf Pro script parameter: "App File Path"
+# Should be full path to the application, e.g. "/System/Applications/Chess.app"
+appFilePath="${5}"
 
 
 
