@@ -6,8 +6,8 @@
 #     Description:  A template script to assist with the uninstallation of macOS products where the vendor has missing or incomplete removal solutions. Attempts vendor uninstall by running all provided uninstallation executables, quits all running target processes, then removes all associated target files.
 #                   https://github.com/palantir/jamf-pro-scripts/tree/main/scripts/script-templates/uninstaller-template
 #         Created:  2017-10-23
-#   Last Modified:  2023-07-24
-#         Version:  2.0pal1
+#   Last Modified:  2025-09-25
+#         Version:  2.0pal2
 #
 #
 # Copyright 2017 Palantir Technologies, Inc.
@@ -36,7 +36,7 @@
 # Jamf Pro script parameter: "App Process"
 appProcess="${4}"
 # Jamf Pro script parameter: "App File Path"
-# Should be full path to the application, e.g. "/System/Applications/Chess.app"
+# Should be full path to the application, e.g. "/System/Applications/Chess.app". If referencing the current user's home folder path, replace "~/" with "LOGGED_IN_USER_HOME/", e.g. "LOGGED_IN_USER_HOME/Applications/Google Chrome.app".
 appFilePath="${5}"
 
 
@@ -52,7 +52,7 @@ loggedInUserHome=$(/usr/bin/dscl . -read "/Users/${loggedInUser}" NFSHomeDirecto
 
 
 
-# Exit if any required Jamf Pro arguments are undefined.
+# Exits if any required Jamf Pro arguments are undefined.
 check_jamf_pro_arguments () {
 
   if [ -z "$appProcess" ] || [ -z "$appFilePath" ]; then
@@ -70,6 +70,17 @@ quit_process () {
   if echo "$currentProcesses" | /usr/bin/grep -q "${1}"; then
     /bin/launchctl asuser "$loggedInUserUID" /usr/bin/osascript -e "tell application \"${1}\" to quit"
     echo "Quit ${1}."
+  fi
+
+}
+
+
+# Takes LOGGED_IN_USER_HOME placeholder and replaces with $loggedInUserHome.
+convert_path_to_home () {
+
+  if echo "$appFilePath" | /usr/bin/grep -q "LOGGED_IN_USER_HOME/"; then
+    appFilePath=$(echo "$appFilePath" | /usr/bin/sed "s|LOGGED_IN_USER_HOME|$loggedInUserHome|")
+    echo "Converted input to file path: ${appFilePath}"
   fi
 
 }
@@ -120,7 +131,8 @@ quit_process "$appProcess"
 
 
 # FILE PATHS
-# For each file and/or folder related to the target product, run the delete_file function calling that file name. Leave off trailing slashes from directory paths. Call the function again for each additional file. If no files need to be deleted, comment out or remove this line.
+# For each file and/or folder related to the target product, run the delete_file function calling that file name. Leave off trailing slashes from directory paths. Call the function again for each additional file. If no files need to be deleted, comment out or remove this line. Replaces LOGGED_IN_USER_HOME placeholder with $loggedInUsrHome as needed.
+convert_path_to_home
 delete_file "$appFilePath"
 
 
